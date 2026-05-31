@@ -6,7 +6,7 @@ public class PixelBackground : MonoBehaviour
     public enum BackgroundType
     {
         MainMenu,
-        HowToPlay,
+        Overlay,
         GameOver,
         Stage1_Space,
         Stage2_Cave,
@@ -85,7 +85,7 @@ public class PixelBackground : MonoBehaviour
         switch (backgroundType)
         {
             case BackgroundType.MainMenu: DrawMainMenu(); break;
-            case BackgroundType.HowToPlay: DrawHowToPlay(); break;
+            case BackgroundType.Overlay: DrawOverlay(); break;
             case BackgroundType.GameOver: DrawGameOver(); break;
             case BackgroundType.Stage1_Space: DrawStage1(); break;
             case BackgroundType.Stage2_Cave: DrawStage2(); break;
@@ -157,26 +157,19 @@ public class PixelBackground : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════
-    // MAIN MENU — Espaço Profundo Minimalista
+    // MAIN MENU
     // ═══════════════════════════════════════════════════════
     private void DrawMainMenu()
     {
-        // ── Paleta harmônica com a UI (laranja, branco, cinza escuro) ──
         Color32 deepSpace = C(4, 6, 18);
         Color32 midSpace = C(10, 14, 35);
-        Color32 horizonGlow = C(18, 22, 55);
-
-        // Nebulosa sutil — laranja queimado e azul frio (eco da UI)
-        Color32 nebEdge = C(60, 30, 10);   // laranja escuro nas bordas
-        Color32 nebAccent = C(20, 30, 70);   // azul-marinho sutil no centro
-
-        // Estrelas em tons que conversam com o laranja da UI
+        Color32 nebEdge = C(60, 30, 10);
+        Color32 nebAccent = C(20, 30, 70);
         Color32 starW = C(245, 245, 255);
-        Color32 starWarm = C(255, 210, 140);  // dourado-laranja
-        Color32 starOrange = C(255, 140, 50);  // laranja vivo (eco do botão)
-        Color32 starCool = C(180, 210, 255);  // azul frio para contraste
+        Color32 starWarm = C(255, 210, 140);
+        Color32 starOrange = C(255, 140, 50);
+        Color32 starCool = C(180, 210, 255);
 
-        // ── 1. Fundo sólido profundo com gradiente radial muito sutil ──
         float cx = texWidth * 0.5f, cy = texHeight * 0.5f;
         float maxR = Mathf.Sqrt(cx * cx + cy * cy);
         for (int y = 0; y < texHeight; y++)
@@ -187,7 +180,6 @@ public class PixelBackground : MonoBehaviour
                 SetPixel(x, y, Lerp32(midSpace, deepSpace, r * r * 0.8f));
             }
 
-        // ── 2. Véu de nebulosa nas bordas (não invade o centro onde fica a UI) ──
         for (int y = 0; y < texHeight; y++)
             for (int x = 0; x < texWidth; x++)
             {
@@ -195,40 +187,26 @@ public class PixelBackground : MonoBehaviour
                 float ny = y / (float)texHeight;
                 float ex = (nx - 0.5f) * 2f, ey = (ny - 0.5f) * 2f;
                 float edgeDist = Mathf.Sqrt(ex * ex + ey * ey);
-
-                // Máscara: só aparece nas bordas, some no centro
                 float borderMask = Mathf.Clamp01((edgeDist - 0.55f) * 2.5f);
                 if (borderMask < 0.01f) continue;
-
                 float n1 = FBM(nx * 2.5f + _time * 0.004f, ny * 2.0f, 3);
                 float n2 = FBM(nx * 3.0f, ny * 2.5f + _time * 0.003f, 3);
-
-                // Cantos inferiores — brilho laranja escuro (eco dos botões)
                 float botCorner = Mathf.Clamp01((ny - 0.5f) * 2.0f) * borderMask;
                 Color32 px2 = GetPixel(x, y);
                 px2 = Lerp32(px2, nebEdge, n1 * botCorner * 0.55f);
-
-                // Topo — azul frio discreto
                 float topMask = Mathf.Clamp01(1f - ny * 3.5f) * borderMask;
                 px2 = Lerp32(px2, nebAccent, n2 * topMask * 0.50f);
-
                 SetPixel(x, y, px2);
             }
 
-        // ── 3. Campo de estrelas em 3 camadas de profundidade ──
-
-        // Camada funda — muitas, pequenas, quase invisíveis
         for (int i = 0; i < 420; i++)
         {
             float h1 = Hash(i * 1.31f, 0f), h2 = Hash(i * 1.31f, 1f), h3 = Hash(i * 1.31f, 2f);
             int sx = (int)(h1 * texWidth), sy = (int)(h2 * texHeight);
             float twinkle = Mathf.Sin(_time * (0.4f + h3 * 1.2f) + i * 2.1f) * 0.15f + 0.85f;
-            // Maioria branca/fria, pequena fração quente para eco da UI
             Color32 sc = h3 > 0.93f ? starWarm : h3 > 0.85f ? starOrange : h3 > 0.60f ? starCool : starW;
             SetPixel(sx, sy, Lerp32(GetPixel(sx, sy), sc, twinkle * 0.35f));
         }
-
-        // Camada média — brilho moderado, algumas com cruz de difração
         for (int i = 0; i < 180; i++)
         {
             float h1 = Hash(i * 2.53f, 5f), h2 = Hash(i * 2.53f, 6f), h3 = Hash(i * 2.53f, 7f);
@@ -246,27 +224,17 @@ public class PixelBackground : MonoBehaviour
                 SetPixel(sx, sy - 1, Lerp32(GetPixel(sx, sy - 1), sc, cr));
             }
         }
-
-        // Camada próxima — poucas estrelas grandes com spike de 4 pontas
-        // Concentradas nas laterais para não cobrir a área central da UI
         for (int i = 0; i < 28; i++)
         {
             float h1 = Hash(i * 6.11f, 10f), h2 = Hash(i * 6.11f, 11f), h3 = Hash(i * 6.11f, 12f);
             int sx = (int)(h1 * texWidth), sy = (int)(h2 * texHeight);
-
-            // Evita a faixa central horizontal (onde ficam título e botões)
-            float nx = sx / (float)texWidth;
-            float ny = sy / (float)texHeight;
+            float nx = sx / (float)texWidth, ny = sy / (float)texHeight;
             float centerMask = Mathf.Clamp01(Mathf.Abs(nx - 0.5f) * 4f - 0.4f)
                              + Mathf.Clamp01(Mathf.Abs(ny - 0.5f) * 3f - 0.2f);
             if (centerMask < 0.3f) continue;
-
             float twinkle = Mathf.Sin(_time * (1.2f + h3 * 3.5f) + i) * 0.35f + 0.65f;
-            // Estrelas grandes têm cor quente — reforçam o laranja da UI
             Color32 sc = h3 > 0.55f ? starWarm : h3 > 0.25f ? starOrange : starW;
-
             SetPixel(sx, sy, Lerp32(GetPixel(sx, sy), sc, twinkle));
-            // Spike 4 pontas
             for (int r2 = 1; r2 <= 5; r2++)
             {
                 float sp = twinkle * (1f - r2 / 5.5f) * 0.75f;
@@ -275,7 +243,6 @@ public class PixelBackground : MonoBehaviour
                 SetPixel(sx, sy + r2, Lerp32(GetPixel(sx, sy + r2), sc, sp));
                 SetPixel(sx, sy - r2, Lerp32(GetPixel(sx, sy - r2), sc, sp));
             }
-            // Diagonal fina
             for (int r2 = 1; r2 <= 2; r2++)
             {
                 float sp = twinkle * 0.20f;
@@ -286,7 +253,6 @@ public class PixelBackground : MonoBehaviour
             }
         }
 
-        // ── 4. Cometa sutil único — traversa o fundo raramente ──
         {
             float speed = 8f;
             float ct = (_time * speed + 40f) % (texWidth + 120f);
@@ -297,12 +263,10 @@ public class PixelBackground : MonoBehaviour
             {
                 float tf = t2 / (float)tailLen;
                 float fade = (1f - tf) * (1f - tf) * (1f - tf);
-                int tx = cometX - t2;
-                int ty = cometY - (int)(t2 * 0.06f);
+                int tx = cometX - t2, ty = cometY - (int)(t2 * 0.06f);
                 Color32 tc2 = Lerp32(starWarm, Lerp32(starOrange, deepSpace, tf * 0.8f), tf);
                 SetPixel(tx, ty, Lerp32(GetPixel(tx, ty), tc2, fade * 0.85f));
-                if (t2 < 20)
-                    SetPixel(tx, ty + 1, Lerp32(GetPixel(tx, ty + 1), tc2, fade * 0.35f));
+                if (t2 < 20) SetPixel(tx, ty + 1, Lerp32(GetPixel(tx, ty + 1), tc2, fade * 0.35f));
             }
             float headPulse = Mathf.Sin(_time * 7f) * 0.08f + 0.92f;
             SetPixel(cometX, cometY, Lerp32(starWarm, starW, headPulse * 0.6f));
@@ -312,74 +276,88 @@ public class PixelBackground : MonoBehaviour
                 for (int a2 = 0; a2 < 12; a2++)
                 {
                     float ang = a2 / 12f * Mathf.PI * 2f;
-                    SetPixel(cometX + (int)(Mathf.Cos(ang) * r2),
-                             cometY + (int)(Mathf.Sin(ang) * r2),
-                             Lerp32(GetPixel(cometX + (int)(Mathf.Cos(ang) * r2),
-                                             cometY + (int)(Mathf.Sin(ang) * r2)),
-                                    starWarm, gf));
+                    int hx = cometX + (int)(Mathf.Cos(ang) * r2);
+                    int hy = cometY + (int)(Mathf.Sin(ang) * r2);
+                    SetPixel(hx, hy, Lerp32(GetPixel(hx, hy), starWarm, gf));
                 }
             }
         }
 
-        // ── 5. Scanlines pixel-art sutis ──
         for (int y = 0; y < texHeight; y += 3)
             for (int x = 0; x < texWidth; x++)
                 SetPixel(x, y, Lerp32(GetPixel(x, y), deepSpace, 0.06f));
 
-        // ── 6. Vinheta suave — guia o olho pro centro ──
         for (int y = 0; y < texHeight; y++)
             for (int x = 0; x < texWidth; x++)
             {
                 float ex = (x / (float)texWidth - 0.5f) * 2f;
                 float ey = (y / (float)texHeight - 0.5f) * 2f;
-                float vig = ex * ex * 0.45f + ey * ey * 0.55f;
-                vig = Mathf.Clamp01(vig - 0.25f) * 0.60f;
+                float vig = Mathf.Clamp01(ex * ex * 0.45f + ey * ey * 0.55f - 0.25f) * 0.60f;
                 if (vig > 0.01f)
                     SetPixel(x, y, Lerp32(GetPixel(x, y), deepSpace, vig));
             }
     }
 
     // ═══════════════════════════════════════════════════════
-    // HOW TO PLAY
+    // OVERLAY — Como Jogar / Pause / Próxima Fase
     // ═══════════════════════════════════════════════════════
-    private void DrawHowToPlay()
+    private void DrawOverlay()
     {
-        Color32 bg1 = C(5, 20, 25);
-        Color32 trace = C(0, 180, 140);
-        Color32 node = C(50, 255, 200);
+        Color32 bg = C(4, 6, 18);
+        Color32 mid = C(10, 14, 35);
+        Color32 line = C(22, 35, 70);
+        Color32 bright = C(40, 65, 130);
 
+        // Base com gradiente radial suave
+        float cx = texWidth * 0.5f, cy = texHeight * 0.5f;
+        float maxR = Mathf.Sqrt(cx * cx + cy * cy);
         for (int y = 0; y < texHeight; y++)
             for (int x = 0; x < texWidth; x++)
-                SetPixel(x, y, bg1);
-
-        for (int y = 0; y < texHeight; y += 12)
-            for (int x = 0; x < texWidth; x++)
             {
-                float pulse = Mathf.Sin(_time * 2f - x * 0.08f) * 0.5f + 0.5f;
-                SetPixel(x, y, Lerp32(bg1, trace, 0.4f + pulse * 0.3f));
+                float dx = x - cx, dy2 = y - cy;
+                float r = Mathf.Sqrt(dx * dx + dy2 * dy2) / maxR;
+                SetPixel(x, y, Lerp32(mid, bg, r * r));
             }
 
-        for (int x = 0; x < texWidth; x += 20)
+        // Linhas horizontais pulsantes lentas
+        for (int y = 0; y < texHeight; y += 18)
+            for (int x = 0; x < texWidth; x++)
+            {
+                float pulse = Mathf.Sin(_time * 0.4f + x * 0.02f) * 0.08f + 0.92f;
+                SetPixel(x, y, Lerp32(GetPixel(x, y), line, 0.75f * pulse));
+            }
+
+        // Linhas verticais
+        for (int x = 0; x < texWidth; x += 28)
             for (int y = 0; y < texHeight; y++)
             {
-                float pulse = Mathf.Sin(_time * 1.5f - y * 0.1f + x * 0.05f) * 0.5f + 0.5f;
-                SetPixel(x, y, Lerp32(GetPixel(x, y), trace, 0.3f + pulse * 0.4f));
+                float pulse = Mathf.Sin(_time * 0.3f + y * 0.025f) * 0.08f + 0.92f;
+                SetPixel(x, y, Lerp32(GetPixel(x, y), line, 0.70f * pulse));
             }
 
-        for (int y = 0; y < texHeight; y += 12)
-            for (int x = 0; x < texWidth; x += 20)
+        // Nós nas interseções
+        for (int y = 0; y < texHeight; y += 18)
+            for (int x = 0; x < texWidth; x += 28)
             {
-                float pulse = Mathf.Sin(_time * 3f + x * 0.2f + y * 0.3f) * 0.5f + 0.5f;
-                Color32 nc = Lerp32(trace, node, pulse);
-                SetPixel(x, y, nc);
-                SetPixel(x + 1, y, nc);
-                SetPixel(x, y + 1, nc);
-                SetPixel(x + 1, y + 1, nc);
+                float pulse = Mathf.Sin(_time * 1.2f + x * 0.15f + y * 0.2f) * 0.3f + 0.7f;
+                SetPixel(x, y, Lerp32(line, bright, pulse));
             }
 
+        // Scanlines
         for (int y = 0; y < texHeight; y += 3)
             for (int x = 0; x < texWidth; x++)
-                SetPixel(x, y, Lerp32(GetPixel(x, y), bg1, 0.12f));
+                SetPixel(x, y, Lerp32(GetPixel(x, y), bg, 0.08f));
+
+        // Vinheta
+        for (int y = 0; y < texHeight; y++)
+            for (int x = 0; x < texWidth; x++)
+            {
+                float ex = (x / (float)texWidth - 0.5f) * 2f;
+                float ey = (y / (float)texHeight - 0.5f) * 2f;
+                float vig = Mathf.Clamp01(ex * ex * 0.5f + ey * ey * 0.6f - 0.2f) * 0.60f;
+                if (vig > 0.01f)
+                    SetPixel(x, y, Lerp32(GetPixel(x, y), bg, vig));
+            }
     }
 
     // ═══════════════════════════════════════════════════════
@@ -657,8 +635,7 @@ public class PixelBackground : MonoBehaviour
             {
                 int hw = Mathf.Max(1, (int)(sw * (1f - (float)dy / sh)));
                 for (int dx = -hw; dx <= hw; dx++)
-                    SetPixel(sx + dx, dy,
-                        Lerp32(rockDark, rockMid, 1f - Mathf.Abs(dx) / (float)(hw + 1)));
+                    SetPixel(sx + dx, dy, Lerp32(rockDark, rockMid, 1f - Mathf.Abs(dx) / (float)(hw + 1)));
             }
         }
 
@@ -722,8 +699,7 @@ public class PixelBackground : MonoBehaviour
             {
                 int hw = 7 - dy;
                 for (int dx = -hw; dx <= hw; dx++)
-                    SetPixel(mx + dx, my + 6 + dy,
-                        Lerp32(mc, mushWhite, (1f - Mathf.Abs(dx) / (float)(hw + 1)) * 0.3f));
+                    SetPixel(mx + dx, my + 6 + dy, Lerp32(mc, mushWhite, (1f - Mathf.Abs(dx) / (float)(hw + 1)) * 0.3f));
             }
             SetPixel(mx - 2, my + 8, mushWhite); SetPixel(mx + 2, my + 8, mushWhite); SetPixel(mx, my + 9, mushWhite);
             for (int dy = -3; dy <= 10; dy++)
@@ -907,7 +883,7 @@ public class PixelBackground : MonoBehaviour
         {
             float ny = y / (float)texHeight;
             Color32 sky;
-            if (ny < 0.25f) sky = Lerp32(skyLow, skyHoriz, (ny) / 0.25f);
+            if (ny < 0.25f) sky = Lerp32(skyLow, skyHoriz, ny / 0.25f);
             else if (ny < 0.55f) sky = Lerp32(skyHoriz, skyMid, (ny - 0.25f) / 0.30f);
             else sky = Lerp32(skyMid, skyTop, (ny - 0.55f) / 0.45f);
             sky = Lerp32(sky, skyHoriz, Mathf.Sin(_time * 0.25f) * 0.04f);
@@ -929,8 +905,7 @@ public class PixelBackground : MonoBehaviour
             {
                 float d = Mathf.Sqrt((x - moonX) * (x - moonX) + (y - moonY) * (y - moonY));
                 if (d > moonR && d < moonR * 2.2f)
-                    SetPixel(x, y, Lerp32(GetPixel(x, y), moonGlow,
-                        (1f - (d - moonR) / (moonR * 1.2f)) * 0.22f));
+                    SetPixel(x, y, Lerp32(GetPixel(x, y), moonGlow, (1f - (d - moonR) / (moonR * 1.2f)) * 0.22f));
             }
         for (int y = moonY - moonR; y <= moonY + moonR; y++)
             for (int x = moonX - moonR; x <= moonX + moonR; x++)

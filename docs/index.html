@@ -1,133 +1,422 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Math Shooter</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Math Shooter</div>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+  <meta name="screen-orientation" content="landscape">
+  <title>Math Shooter</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #08080f;
+      font-family: 'Exo 2', sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    /* ── força landscape em celular ── */
+    @media screen and (orientation: portrait) {
+      #rotate-msg { display: flex !important; }
+      #unity-container { display: none !important; }
+    }
+
+    #rotate-msg {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #08080f;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 9999;
+    }
+    #rotate-msg .icon { font-size: 4rem; animation: spin 2s ease-in-out infinite; }
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      40%  { transform: rotate(90deg); }
+      100% { transform: rotate(90deg); }
+    }
+    #rotate-msg p {
+      color: #f97316;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      letter-spacing: .1em;
+      text-align: center;
+    }
+
+    /* ── container unity ── */
+    #unity-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    #unity-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      outline: none;
+    }
+
+    /* ── loading bar unity ── */
+    #unity-loading-bar {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 50;
+    }
+    #unity-logo { margin-bottom: 16px; }
+    #unity-progress-bar-empty {
+      width: 300px; height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      border: 1px solid rgba(249,115,22,0.3);
+      overflow: hidden;
+    }
+    #unity-progress-bar-full {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #b04a00, #f97316, #ffb040);
+      border-radius: 3px;
+      transition: width .25s ease;
+      box-shadow: 0 0 10px rgba(249,115,22,0.6);
+    }
+
+    /* ── warning ── */
+    #unity-warning {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      z-index: 200;
+      display: none;
+    }
+
+    /* ── footer ── */
+    #unity-footer {
+      position: fixed;
+      bottom: 0; right: 0;
+      z-index: 50;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #unity-build-title {
+      color: rgba(249,115,22,0.4);
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    #unity-fullscreen-button {
+      width: 28px; height: 28px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    #unity-fullscreen-button:hover { background: rgba(249,115,22,0.15); }
+    #unity-fullscreen-button img { width: 14px; opacity: .6; }
+
+    /* ── botão pause ── */
+    #btn-pause {
+      position: fixed;
+      top: 12px; right: 12px;
+      z-index: 100;
+      width: 44px; height: 44px;
+      background: rgba(249,115,22,0.15);
+      border: 1px solid rgba(249,115,22,0.4);
+      border-radius: 8px;
+      color: #f97316;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+    #btn-pause:hover { background: rgba(249,115,22,0.3); }
+
+    /* ── painéis overlay ── */
+    .painel {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(8,8,15,0.92);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      z-index: 80;
+      backdrop-filter: blur(4px);
+    }
+    .painel.ativo { display: flex; }
+
+    .painel h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      font-weight: 900;
+      color: #f97316;
+      text-shadow: 0 0 20px rgba(249,115,22,0.5);
+      letter-spacing: .05em;
+    }
+    .painel p {
+      font-size: clamp(.85rem, 2vw, 1rem);
+      color: #94a3b8;
+      text-align: center;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+    .painel pre {
+      font-family: 'Exo 2', sans-serif;
+      font-size: clamp(.75rem, 1.8vw, .9rem);
+      color: #94a3b8;
+      text-align: center;
+      white-space: pre-wrap;
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    .btn {
+      background: #f97316;
+      color: white;
+      border: none;
+      padding: 12px 40px;
+      border-radius: 8px;
+      font-size: clamp(.85rem, 2vw, 1rem);
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: background .2s, transform .1s;
+    }
+    .btn:hover  { background: #ea6c0a; }
+    .btn:active { transform: scale(.97); }
+
+    .btn-sec {
+      background: transparent;
+      border: 1px solid #f97316;
+      color: #f97316;
+      padding: 10px 36px;
+      border-radius: 8px;
+      font-size: clamp(.8rem, 1.8vw, .95rem);
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: background .2s;
+    }
+    .btn-sec:hover { background: rgba(249,115,22,0.1); }
+
+    #score-final {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- aviso para girar o celular -->
+  <div id="rotate-msg">
+    <div class="icon">📱</div>
+    <p>GIRE O CELULAR<br>PARA JOGAR</p>
+  </div>
+
+  <!-- botão pause (aparece só durante o jogo) -->
+  <button id="btn-pause" onclick="togglePause()">⏸</button>
+
+  <!-- unity -->
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" tabindex="0"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
     </div>
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
+    <div id="unity-warning"></div>
+    <div id="unity-footer">
+      <div id="unity-build-title">Math Shooter</div>
+      <div id="unity-fullscreen-button">
+        <img src="TemplateData/fullscreen-button.png" alt="FS">
+      </div>
+    </div>
+  </div>
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+  <!-- painel pause -->
+  <div class="painel" id="painel-pause">
+    <h1>PAUSADO</h1>
+    <button class="btn" onclick="togglePause()">▶ Continuar</button>
+  </div>
+
+  <!-- painel game over -->
+  <div class="painel" id="painel-gameover">
+    <h1>GAME OVER</h1>
+    <p id="score-final">Pontuação: 0</p>
+    <button class="btn" onclick="jogarNovamente()">Jogar Novamente</button>
+  </div>
+
+  <!-- painel fase completa -->
+  <div class="painel" id="painel-fase">
+    <h1 id="fase-titulo">Fase Completa!</h1>
+    <pre id="fase-desc"></pre>
+    <button class="btn" id="btn-continuar" onclick="continuar()">Continuar</button>
+  </div>
+
+  <script>
+    var unityInstance = null;
+    var pausado = false;
+    var jogoAtivo = false;
+    var canvas = document.querySelector("#unity-canvas");
+
+    // ── fix foco canvas ──
+    canvas.style.outline = "none";
+    window.addEventListener('load', function() { canvas.focus(); });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.painel') && !e.target.closest('#btn-pause'))
+        canvas.focus();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && jogoAtivo) togglePause();
+      canvas.focus();
+    });
+
+    // ── bridge Unity → JS ──
+    window.unityBridge = {
+      mostrarGameOver: function(score) {
+        jogoAtivo = false;
+        esconderPause();
+        esconderTodos();
+        document.getElementById('score-final').innerText = 'Pontuação: ' + score;
+        document.getElementById('painel-gameover').classList.add('ativo');
+        document.getElementById('btn-pause').style.display = 'none';
+      },
+      mostrarFaseCompleta: function(fase, aprovado, desc) {
+        jogoAtivo = false;
+        esconderPause();
+        esconderTodos();
+        document.getElementById('fase-titulo').innerText = aprovado
+          ? 'FASE ' + fase + ' COMPLETA!' : 'TENTE NOVAMENTE!';
+        document.getElementById('fase-desc').innerText = desc || '';
+        document.getElementById('btn-continuar').innerText = aprovado ? 'Continuar' : 'Tentar Novamente';
+        document.getElementById('painel-fase').classList.add('ativo');
+        document.getElementById('btn-pause').style.display = 'none';
+      },
+      esconderPaineis: function() {
+        jogoAtivo = true;
+        esconderTodos();
+        document.getElementById('btn-pause').style.display = 'flex';
+        setTimeout(function() { canvas.focus(); }, 100);
       }
+    };
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/docs.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/docs.data",
-        frameworkUrl: buildUrl + "/docs.framework.js",
-        codeUrl: buildUrl + "/docs.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "UTFPR",
-        productName: "Math Shooter",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
-      };
+    function esconderTodos() {
+      document.querySelectorAll('.painel').forEach(function(p) {
+        p.classList.remove('ativo');
+      });
+    }
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+    function esconderPause() {
+      pausado = false;
+      document.getElementById('painel-pause').classList.remove('ativo');
+    }
 
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
+    function togglePause() {
+      if (!jogoAtivo && !pausado) return;
+      pausado = !pausado;
+      if (pausado) {
+        document.getElementById('painel-pause').classList.add('ativo');
+        document.getElementById('btn-pause').innerHTML = '▶';
+        if (unityInstance) unityInstance.SendMessage('GameManager', 'PausarJogo');
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        document.getElementById('painel-pause').classList.remove('ativo');
+        document.getElementById('btn-pause').innerHTML = '⏸';
+        if (unityInstance) unityInstance.SendMessage('GameManager', 'ResumarJogo');
+        setTimeout(function() { canvas.focus(); }, 100);
       }
+    }
 
-      document.querySelector("#unity-loading-bar").style.display = "block";
+    function jogarNovamente() {
+      esconderTodos();
+      jogoAtivo = true;
+      document.getElementById('btn-pause').style.display = 'flex';
+      if (unityInstance) unityInstance.SendMessage('GameManager', 'ReiniciarDaFase');
+      setTimeout(function() { canvas.focus(); }, 100);
+    }
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
+    function continuar() {
+      esconderTodos();
+      jogoAtivo = true;
+      document.getElementById('btn-pause').style.display = 'flex';
+      if (unityInstance) unityInstance.SendMessage('GameManager', 'AcaoBtnContinuar');
+      setTimeout(function() { canvas.focus(); }, 100);
+    }
 
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+    // ── Unity loader ──
+    function unityShowBanner(msg, type) {
+      var wb = document.querySelector("#unity-warning");
+      function upd() { wb.style.display = wb.children.length ? 'block' : 'none'; }
+      var d = document.createElement('div');
+      d.innerHTML = msg;
+      wb.appendChild(d);
+      if (type == 'error') d.style = 'background:red;padding:10px;color:#fff;';
+      else {
+        if (type == 'warning') d.style = 'background:#f97316;padding:10px;color:#fff;';
+        setTimeout(function() { wb.removeChild(d); upd(); }, 5000);
+      }
+      upd();
+    }
 
-      document.body.appendChild(script);
+    var buildUrl = "Build";
+    var config = {
+      arguments: [],
+      dataUrl:            buildUrl + "/docs.data",
+      frameworkUrl:       buildUrl + "/docs.framework.js",
+      codeUrl:            buildUrl + "/docs.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName:        "UTFPR",
+      productName:        "Math Shooter",
+      productVersion:     "1.0",
+      showBanner:         unityShowBanner,
+    };
 
-    </script>
-  </body>
+    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      document.querySelector("#unity-container").className = "unity-mobile";
+      canvas.className = "unity-mobile";
+    } else {
+      canvas.style.width  = "100%";
+      canvas.style.height = "100%";
+    }
+
+    document.querySelector("#unity-loading-bar").style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/docs.loader.js";
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
+      }).then((instance) => {
+        unityInstance = instance;
+        document.querySelector("#unity-loading-bar").style.display = "none";
+        document.querySelector("#unity-fullscreen-button").onclick = () => {
+          instance.SetFullscreen(1);
+        };
+        setTimeout(function() { canvas.focus(); }, 300);
+      }).catch((msg) => { alert(msg); });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
 </html>
