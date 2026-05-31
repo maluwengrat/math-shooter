@@ -96,10 +96,12 @@
 									font-size: 10px; font-family: sans-serif;
 									}
 									#unity-fullscreen-button {
-									width: 24px; height: 24px; cursor: pointer;
+									width: 36px; height: 36px; cursor: pointer;
 									background: url('TemplateData/fullscreen-button.png') no-repeat center;
-									background-size: contain; opacity: 0.5;
+									background-size: contain; opacity: 0.85;
+									transition: opacity 0.2s;
 									}
+									#unity-fullscreen-button:hover { opacity: 1; }
 									#unity-warning {
 									position: absolute; top: 0; left: 0;
 									width: 100%; z-index: 10; display: none;
@@ -136,25 +138,7 @@
 		<script>
 			var GAME_W = 1920, GAME_H = 1080;
 
-			function entrarFullscreen() {
-			var el = document.documentElement;
-			var fn = el.requestFullscreen
-			|| el.webkitRequestFullscreen
-			|| el.mozRequestFullScreen
-			|| el.msRequestFullscreen;
-			if (fn) fn.call(el);
-			}
 
-			// Entra em fullscreen no PRIMEIRO clique/toque do usuário (que será no botão do Unity)
-			function primeiroGesto() {
-			entrarFullscreen();
-			document.removeEventListener('click',     primeiroGesto);
-			document.removeEventListener('touchstart', primeiroGesto);
-			document.removeEventListener('keydown',    primeiroGesto);
-			}
-			document.addEventListener('click',      primeiroGesto);
-			document.addEventListener('touchstart', primeiroGesto);
-			document.addEventListener('keydown',    primeiroGesto);
 
 			function escalar() {
 			var container = document.getElementById('unity-container');
@@ -219,6 +203,8 @@
 			document.querySelector("#unity-fullscreen-button").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
+			// Entra em tela cheia automaticamente assim que o Unity terminar de carregar
+			unityInstance.SetFullscreen(1);
 			setTimeout(function() { canvas.focus(); escalar(); }, 200);
 			}).catch((msg) => { alert(msg); });
 			};
