@@ -207,12 +207,29 @@
 			document.getElementById("fs-label").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
-			// Escuta o primeiro clique no canvas na fase de captura (não interfere no Unity)
-			// e aciona fullscreen junto — o Unity recebe o evento normalmente
-			canvas.addEventListener('click', function fsOnce() {
+			// Primeiro toque/clique no canvas aciona fullscreen sem interferir no Unity
+			function fsOnce() {
 			unityInstance.SetFullscreen(1);
-			canvas.removeEventListener('click', fsOnce, true);
-			}, { capture: true, once: true });
+			canvas.removeEventListener('click',      fsOnce, true);
+			canvas.removeEventListener('touchstart', fsOnce, true);
+			}
+			canvas.addEventListener('click',      fsOnce, { capture: true, once: true });
+			canvas.addEventListener('touchstart', fsOnce, { capture: true, once: true });
+
+			// Detecta mobile via JS (muito mais confiável que Application.isMobilePlatform no WebGL)
+			// e avisa o MobileUI via SendMessage para forçar os controles
+			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+			|| (navigator.maxTouchPoints > 1);
+			if (isMobileJS) {
+			// Tenta enviar assim que carrega, e também após 1s para garantir que o objeto já existe
+			setTimeout(function() {
+			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
+			}, 500);
+			setTimeout(function() {
+			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
+			}, 2000);
+			}
+
 			setTimeout(function() { canvas.focus(); escalar(); }, 200);
 			}).catch((msg) => { alert(msg); });
 			};

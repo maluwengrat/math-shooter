@@ -26,16 +26,25 @@ public class MobileUI : MonoBehaviour
     void Awake()
     {
         instance = this;
-        isMobile = forcarMobile
-                   || Application.isMobilePlatform
-                   || SystemInfo.deviceType == DeviceType.Handheld
-                   || Input.touchSupported;
+        // No WebGL, Application.isMobilePlatform sempre retorna false.
+        // A detecção real é feita via JavaScript (SetMobileFromJS).
+        // Aqui mantemos apenas o forcarMobile para testes no editor.
+        isMobile = forcarMobile;
     }
 
     void Start()
     {
         CriarTexturas();
         player = FindObjectOfType<PlayerController>();
+    }
+
+    // Chamado pelo JavaScript via SendMessage quando o navegador detecta celular/tablet
+    public void SetMobileFromJS(string valor)
+    {
+        if (valor == "1")
+        {
+            isMobile = true;
+        }
     }
 
     void Update()
