@@ -590,7 +590,7 @@ MonoBehaviour:
     - line: '|   webGLDebugSymbols: 0'
     - line: '|   webGLEmscriptenArgs: '
     - line: '|   webGLModulesDirectory: '
-    - line: '|   webGLTemplate: PROJECT:MathShooter'
+    - line: '|   webGLTemplate: APPLICATION:Default'
     - line: '|   webGLAnalyzeBuildSize: 0'
     - line: '|   webGLUseEmbeddedResources: 0'
     - line: '|   webGLCompressionFormat: 2'
