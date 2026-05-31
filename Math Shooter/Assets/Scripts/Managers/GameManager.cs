@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -48,7 +49,6 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI finalScoreText;
     public Button btnJogarNovamente;
 
-    
     // ── Estado interno ────────────────────────────────────────────────
     private List<string> historicoContas = new();
     private List<bool> historicoAcertos = new();
@@ -92,6 +92,18 @@ public class GameManager : MonoBehaviour
     public void PausarJogo() { Time.timeScale = 0f; }
     public void ResumarJogo() { Time.timeScale = 1f; }
 
+    // ─────────────────────────────────────────────────────────────────
+    // Bridge JS — chama funções no index.html via ExternalEval
+    // Só executa na build WebGL; ignorado no Editor.
+    // ─────────────────────────────────────────────────────────────────
+    private static void JS(string expr)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Application.ExternalEval(expr);
+#endif
+    }
+
+    // ─────────────────────────────────────────────────────────────────
 
     void Awake() { instance = this; }
 
@@ -156,7 +168,8 @@ public class GameManager : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // Painéis
+    // Painéis Unity (fallback — ficam ocultos no WebGL pois o HTML fica
+    // por cima, mas continuam funcionando no Editor para testes)
     // ─────────────────────────────────────────────────────────────────
 
     void MostrarSomente(GameObject painel)
@@ -170,15 +183,8 @@ public class GameManager : MonoBehaviour
             PauseManager.instance.btnPause.gameObject.SetActive(painel == null);
     }
 
-    void AbrirComoJogar()
-    {
-        MostrarSomente(comoJogarPanel);
-    }
-
-    void FecharComoJogar()
-    {
-        MostrarSomente(menuPrincipalPanel);
-    }
+    void AbrirComoJogar() { MostrarSomente(comoJogarPanel); }
+    void FecharComoJogar() { MostrarSomente(menuPrincipalPanel); }
 
     // ─────────────────────────────────────────────────────────────────
     // Controle de jogo
@@ -199,7 +205,11 @@ public class GameManager : MonoBehaviour
         powerUpsSpawnadosNaFase = 0;
         AtualizarUI();
         jogoIniciado = true;
+
         if (BackgroundManager.Instance != null) BackgroundManager.Instance.SetStage(faseAtual);
+
+        // avisa o HTML que o jogo começou (esconde painéis overlay)
+        JS("window.unityBridge.esconderPaineis()");
 
         SpawnWave();
     }
@@ -241,6 +251,9 @@ public class GameManager : MonoBehaviour
 
         jogoIniciado = true;
         AtualizarUI();
+
+        JS("window.unityBridge.esconderPaineis()");
+
         SpawnWave();
     }
 
@@ -268,6 +281,9 @@ public class GameManager : MonoBehaviour
 
         jogoIniciado = true;
         AtualizarUI();
+
+        JS("window.unityBridge.esconderPaineis()");
+
         SpawnWave();
     }
 
@@ -289,6 +305,9 @@ public class GameManager : MonoBehaviour
 
         jogoIniciado = true;
         AtualizarUI();
+
+        JS("window.unityBridge.esconderPaineis()");
+
         SpawnWave();
     }
 
@@ -324,6 +343,7 @@ public class GameManager : MonoBehaviour
 
         powerUpsSpawnadosNaFase++;
     }
+
     // ─────────────────────────────────────────────────────────────────
     // Spawn
     // ─────────────────────────────────────────────────────────────────
@@ -399,12 +419,8 @@ public class GameManager : MonoBehaviour
             Vector3 pos = new Vector3(posX[i], 3f + (i * 2f), 0);
             GameObject go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
-            // ⭐ GARANTIR QUE O INIMIGO APAREÇA NA FRENTE DO FUNDO
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.sortingOrder = 15;
-            }
+            if (sr != null) sr.sortingOrder = 15;
 
             Enemy e = go.GetComponent<Enemy>();
             e.SetNumber(nums[i]);
@@ -628,13 +644,21 @@ public class GameManager : MonoBehaviour
     {
         FeedbackManager.instance.Esconder();
         hudPanel.SetActive(false);
-        MostrarSomente(null);
         Time.timeScale = 0f;
+
         if (BackgroundManager.Instance != null) BackgroundManager.Instance.SetGameOver();
 
+        // fallback Unity (visível só no Editor)
         finalScoreText.text = "Pontuação: " + score;
         MostrarSomente(gameOverPanel);
+
+        // painel HTML
+        JS($"window.unityBridge.mostrarGameOver('{score}')");
     }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Fase Completa
+    // ─────────────────────────────────────────────────────────────────
 
     void FaseCompleta()
     {
@@ -661,13 +685,11 @@ public class GameManager : MonoBehaviour
 
         faseAprovada = percentual == 100;
 
-        faseTituloText.text = faseAprovada
-            ? $"FASE {faseAtual} COMPLETA!"
-            : "Tente Novamente!";
+        // ── fallback Unity (Editor) ──────────────────────────────────
+        faseTituloText.text = faseAprovada ? $"FASE {faseAtual} COMPLETA!" : "Tente Novamente!";
 
         string resumo = $"Aproveitamento: {percentual}%  |  Acertos: {acertos}  Erros: {erros}\n\n";
-        if (!faseAprovada)
-            resumo += "Acerte TODAS as questões para avançar!\n\n";
+        if (!faseAprovada) resumo += "Acerte TODAS as questões para avançar!\n\n";
         resumo += "Cálculos da fase:\n";
         for (int i = 0; i < historicoContas.Count; i++)
         {
@@ -676,16 +698,47 @@ public class GameManager : MonoBehaviour
         }
         faseDescText.text = resumo;
 
-        historicoContas.Clear();
-        historicoAcertos.Clear();
-
         TextMeshProUGUI btnTexto = btnContinuar.GetComponentInChildren<TextMeshProUGUI>();
         if (btnTexto != null)
             btnTexto.text = faseAprovada ? "Continuar" : "Tentar Novamente";
 
         MostrarSomente(faseCompletaPanel);
+
+        // ── painel HTML ──────────────────────────────────────────────
+        var sb = new StringBuilder();
+        for (int i = 0; i < historicoContas.Count; i++)
+        {
+            bool ok = i < historicoAcertos.Count && historicoAcertos[i];
+            // sanitiza aspas para não quebrar o JSON inline
+            string eq = historicoContas[i].Replace("\\", "").Replace("\"", "").Replace("'", "");
+            if (i > 0) sb.Append(",");
+            sb.Append($"{{\"ok\":{(ok ? "true" : "false")},\"eq\":\"{eq}\"}}");
+        }
+
+        string json = "{"
+            + $"\"fase\":{faseAtual},"
+            + $"\"aprovado\":{(faseAprovada ? "true" : "false")},"
+            + $"\"acertos\":{acertos},"
+            + $"\"erros\":{erros},"
+            + $"\"pct\":{percentual},"
+            + $"\"historico\":[{sb}]"
+            + "}";
+
+        // escapa aspas simples que possam vir dos símbolos matemáticos
+        json = json.Replace("'", "\\'");
+
+        JS($"window.unityBridge.mostrarFaseCompleta('{json}')");
+
+        historicoContas.Clear();
+        historicoAcertos.Clear();
+
         Invoke(nameof(PausarJogo), 0.6f);
     }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Vitória Final
+    // ─────────────────────────────────────────────────────────────────
+
     void VitoriaFinal()
     {
         CancelInvoke();
@@ -709,13 +762,9 @@ public class GameManager : MonoBehaviour
 
         faseAprovada = true;
 
+        // ── fallback Unity (Editor) ──────────────────────────────────
         faseTituloText.text = "PARABÉNS!";
-        faseDescText.text = $"Você completou todas as fases!\n\n"
-                          + $"Pontuação final: {score}\n"
-                          + $"Aproveitamento: {percentual}%";
-
-        historicoContas.Clear();
-        historicoAcertos.Clear();
+        faseDescText.text = $"Você completou todas as fases!\n\nPontuação final: {score}\nAproveitamento: {percentual}%";
 
         TextMeshProUGUI btnTexto = btnContinuar.GetComponentInChildren<TextMeshProUGUI>();
         if (btnTexto != null) btnTexto.text = "Jogar Novamente";
@@ -724,10 +773,15 @@ public class GameManager : MonoBehaviour
         btnContinuar.onClick.AddListener(ReiniciarJogo);
 
         MostrarSomente(faseCompletaPanel);
+
+        // ── painel HTML ──────────────────────────────────────────────
+        JS($"window.unityBridge.mostrarVitoria('{score}', '{percentual}')");
+
+        historicoContas.Clear();
+        historicoAcertos.Clear();
+
         Invoke(nameof(PausarJogo), 0.6f);
     }
-
-    void PausarJogo() { Time.timeScale = 0f; }
 
     // ─────────────────────────────────────────────────────────────────
     // UI

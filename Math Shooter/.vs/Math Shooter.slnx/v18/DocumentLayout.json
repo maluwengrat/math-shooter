@@ -3,20 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\background\\pixelbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\background\\pixelbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\managers\\backgroundmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\managers\\backgroundmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\others\\mobileui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\others\\mobileui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\managers\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\managers\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\WebGLTemplates\\MathShooter\\index.html||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\WebGLTemplates\\MathShooter\\index.html||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\others\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\others\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\managers\\pausemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\managers\\pausemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\managers\\backgroundmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\managers\\backgroundmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\maria\\math shooter\\math shooter\\assets\\scripts\\background\\pixelbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\background\\pixelbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,33 +42,72 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\WebGLTemplates\\MathShooter\\index.html",
+              "RelativeDocumentMoniker": "Assets\\WebGLTemplates\\MathShooter\\index.html",
+              "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\WebGLTemplates\\MathShooter\\index.html",
+              "RelativeToolTip": "Assets\\WebGLTemplates\\MathShooter\\index.html",
+              "ViewState": "AgIAAMgDAAAAAAAAAAAmwNYDAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2026-05-31T02:10:00.839Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PlayerController.cs",
+              "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Others\\PlayerController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Others\\PlayerController.cs",
+              "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Others\\PlayerController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Others\\PlayerController.cs",
+              "ViewState": "AgIAAB0BAAAAAAAAAAAgwDUBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-31T01:58:01.54Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MobileUi.cs",
+              "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Others\\MobileUi.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Others\\MobileUi.cs",
+              "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Others\\MobileUi.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Others\\MobileUi.cs",
+              "ViewState": "AgIAALAAAAAAAAAAAAAowMoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-31T01:57:55.009Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "BackgroundManager.cs",
               "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Managers\\BackgroundManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Managers\\BackgroundManager.cs",
               "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Managers\\BackgroundManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Managers\\BackgroundManager.cs",
-              "ViewState": "AgIAAFUAAAAAAAAAAAA7wG8AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAYwG8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-31T01:06:02.787Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "GameManager.cs",
               "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Managers\\GameManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Managers\\GameManager.cs",
               "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Managers\\GameManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Managers\\GameManager.cs",
-              "ViewState": "AgIAAMoCAAAAAAAAAAAQwN8CAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAIMCAAAAAAAAAAAgwCgDAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-31T00:42:40.603Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "PixelBackground.cs",
               "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Background\\PixelBackground.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Background\\PixelBackground.cs",
@@ -69,7 +120,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "PauseManager.cs",
               "DocumentMoniker": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\Scripts\\Managers\\PauseManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Managers\\PauseManager.cs",
