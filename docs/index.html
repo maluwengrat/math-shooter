@@ -1,110 +1,111 @@
-
 <!DOCTYPE html>
 <html lang="en-us">
 	<head>
 		<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-				<title>Math Shooter</title>
-				<link rel="shortcut icon" href="TemplateData/favicon.ico">
-					<style>
-						* { margin: 0; padding: 0; box-sizing: border-box; }
-						html, body {
-						width: 100vw; height: 100vh;
-						background: #000;
-						overflow: hidden;
-						}
+				<meta name="mobile-web-app-capable" content="yes">
+					<meta name="apple-mobile-web-app-capable" content="yes">
+						<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+							<title>Math Shooter</title>
+							<link rel="shortcut icon" href="TemplateData/favicon.ico">
+								<style>
+									* { margin: 0; padding: 0; box-sizing: border-box; }
+									html, body {
+									width: 100vw; height: 100vh;
+									background: #000;
+									overflow: hidden;
+									}
 
-						#rotate-msg {
-						display: none;
-						position: fixed;
-						top: 0; left: 0; width: 100%; height: 100%;
-						background: #08080f;
-						flex-direction: column;
-						align-items: center; justify-content: center;
-						gap: 20px; z-index: 9999;
-						}
-						#rotate-msg .icon { font-size: 4rem; animation: girar 2s ease-in-out infinite; }
-						@keyframes girar {
-						0%   { transform: rotate(0deg); }
-						50%  { transform: rotate(90deg); }
-						100% { transform: rotate(90deg); }
-						}
-						#rotate-msg p {
-						color: #f97316; font-family: sans-serif;
-						font-size: 1.1rem; text-align: center;
-						}
+									#rotate-msg {
+									display: none;
+									position: fixed;
+									top: 0; left: 0; width: 100%; height: 100%;
+									background: #08080f;
+									flex-direction: column;
+									align-items: center; justify-content: center;
+									gap: 20px; z-index: 9999;
+									}
+									#rotate-msg .icon { font-size: 4rem; animation: girar 2s ease-in-out infinite; }
+									@keyframes girar {
+									0%   { transform: rotate(0deg); }
+									50%  { transform: rotate(90deg); }
+									100% { transform: rotate(90deg); }
+									}
+									#rotate-msg p {
+									color: #f97316; font-family: sans-serif;
+									font-size: 1.1rem; text-align: center;
+									}
 
-						@media screen and (orientation: portrait) and (max-width: 1024px) {
-						#rotate-msg { display: flex !important; }
-						#wrapper    { display: none !important; }
-						}
+									@media screen and (orientation: portrait) and (max-width: 1024px) {
+									#rotate-msg { display: flex !important; }
+									#wrapper    { display: none !important; }
+									}
 
-						#wrapper {
-						position: absolute;
-						top: 0; left: 0;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						width: 100vw;
-						height: 100vh;
-						}
+									#wrapper {
+									position: absolute;
+									top: 0; left: 0;
+									display: flex;
+									justify-content: center;
+									align-items: center;
+									width: 100vw;
+									height: 100vh;
+									}
 
-						/* canvas sempre 1920x1080, JS aplica scale */
-						#unity-container {
-						position: relative;
-						width: 1920px;
-						height: 1080px;
-						transform-origin: top left;
-						}
+									#unity-container {
+									position: relative;
+									width: 1920px;
+									height: 1080px;
+									transform-origin: top left;
+									}
 
-						#unity-canvas {
-						width: 1920px !important;
-						height: 1080px !important;
-						outline: none;
-						display: block;
-						}
+									#unity-canvas {
+									width: 1920px !important;
+									height: 1080px !important;
+									outline: none;
+									display: block;
+									}
 
-						#unity-loading-bar {
-						position: absolute;
-						top: 50%; left: 50%;
-						transform: translate(-50%, -50%);
-						text-align: center;
-						}
-						#unity-logo {
-						width: 154px; height: 130px;
-						background: url('TemplateData/unity-logo-dark.png') no-repeat center;
-						background-size: contain;
-						margin: 0 auto 10px;
-						}
-						#unity-progress-bar-empty {
-						width: 280px; height: 8px;
-						background: #333; border-radius: 4px; overflow: hidden;
-						}
-						#unity-progress-bar-full {
-						width: 0%; height: 100%;
-						background: #f97316; border-radius: 4px;
-						}
-						#unity-footer {
-						position: absolute; bottom: 0; right: 0;
-						padding: 5px 8px;
-						display: flex; align-items: center; gap: 6px;
-						}
-						#unity-build-title {
-						color: rgba(255,255,255,0.35);
-						font-size: 10px; font-family: sans-serif;
-						}
-						#unity-fullscreen-button {
-						width: 24px; height: 24px; cursor: pointer;
-						background: url('TemplateData/fullscreen-button.png') no-repeat center;
-						background-size: contain; opacity: 0.5;
-						}
-						#unity-warning {
-						position: absolute; top: 0; left: 0;
-						width: 100%; z-index: 10; display: none;
-						}
-						#unity-logo-title-footer { display: none; }
-					</style>
-				</head>
+									#unity-loading-bar {
+									position: absolute;
+									top: 50%; left: 50%;
+									transform: translate(-50%, -50%);
+									text-align: center;
+									}
+									#unity-logo {
+									width: 154px; height: 130px;
+									background: url('TemplateData/unity-logo-dark.png') no-repeat center;
+									background-size: contain;
+									margin: 0 auto 10px;
+									}
+									#unity-progress-bar-empty {
+									width: 280px; height: 8px;
+									background: #333; border-radius: 4px; overflow: hidden;
+									}
+									#unity-progress-bar-full {
+									width: 0%; height: 100%;
+									background: #f97316; border-radius: 4px;
+									}
+									#unity-footer {
+									position: absolute; bottom: 0; right: 0;
+									padding: 5px 8px;
+									display: flex; align-items: center; gap: 6px;
+									}
+									#unity-build-title {
+									color: rgba(255,255,255,0.35);
+									font-size: 10px; font-family: sans-serif;
+									}
+									#unity-fullscreen-button {
+									width: 24px; height: 24px; cursor: pointer;
+									background: url('TemplateData/fullscreen-button.png') no-repeat center;
+									background-size: contain; opacity: 0.5;
+									}
+									#unity-warning {
+									position: absolute; top: 0; left: 0;
+									width: 100%; z-index: 10; display: none;
+									}
+									#unity-logo-title-footer { display: none; }
+								</style>
+							</head>
 	<body>
 
 		<div id="rotate-msg">
@@ -134,25 +135,36 @@
 		<script>
 			var GAME_W = 1920, GAME_H = 1080;
 
+			function entrarFullscreen() {
+			var el = document.documentElement;
+			var fn = el.requestFullscreen
+			|| el.webkitRequestFullscreen
+			|| el.mozRequestFullScreen
+			|| el.msRequestFullscreen;
+			if (fn) fn.call(el);
+			}
+
+			// Entra em fullscreen no PRIMEIRO clique/toque do usuário (que será no botão do Unity)
+			function primeiroGesto() {
+			entrarFullscreen();
+			document.removeEventListener('click',     primeiroGesto);
+			document.removeEventListener('touchstart', primeiroGesto);
+			document.removeEventListener('keydown',    primeiroGesto);
+			}
+			document.addEventListener('click',      primeiroGesto);
+			document.addEventListener('touchstart', primeiroGesto);
+			document.addEventListener('keydown',    primeiroGesto);
+
 			function escalar() {
 			var container = document.getElementById('unity-container');
 			var wrapper   = document.getElementById('wrapper');
 			if (!container || !wrapper) return;
-
-			var ww = window.innerWidth;
-			var wh = window.innerHeight;
-
+			var ww = window.innerWidth, wh = window.innerHeight;
 			var scale = Math.min(ww / GAME_W, wh / GAME_H);
-
-			var scaledW = GAME_W * scale;
-			var scaledH = GAME_H * scale;
-
 			container.style.transform = 'scale(' + scale + ')';
 			container.style.transformOrigin = 'top left';
-
-			// centraliza
-			container.style.marginLeft = ((ww - scaledW) / 2) + 'px';
-			container.style.marginTop  = ((wh - scaledH) / 2) + 'px';
+			container.style.marginLeft = ((ww - GAME_W * scale) / 2) + 'px';
+			container.style.marginTop  = ((wh - GAME_H * scale) / 2) + 'px';
 			}
 
 			escalar();
@@ -161,10 +173,14 @@
 			setTimeout(escalar, 300);
 			});
 
+			// Re-escala quando entrar/sair do fullscreen (barra some e janela muda de tamanho)
+			document.addEventListener('fullscreenchange',       function() { setTimeout(escalar, 100); });
+			document.addEventListener('webkitfullscreenchange', function() { setTimeout(escalar, 100); });
+
 			var canvas = document.querySelector("#unity-canvas");
 			canvas.style.outline = "none";
 			window.addEventListener('load', function() { canvas.focus(); escalar(); });
-			document.addEventListener('click', function() { canvas.focus(); });
+			document.addEventListener('click',   function() { canvas.focus(); });
 			document.addEventListener('keydown', function() { canvas.focus(); });
 
 			function unityShowBanner(msg, type) {
