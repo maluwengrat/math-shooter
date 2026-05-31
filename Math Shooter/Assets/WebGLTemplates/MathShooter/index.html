@@ -107,20 +107,6 @@
 									width: 100%; z-index: 10; display: none;
 									}
 									#unity-logo-title-footer { display: none; }
-
-									/* Overlay invisível sobre o botão INICIAR JOGO do Unity */
-									#fs-overlay {
-									position: absolute;
-									/* Coordenadas no canvas 1920×1080: botão fica ~centralizado, y≈280, w≈370, h≈90 */
-									left:   775px;
-									top:    278px;
-									width:  370px;
-									height: 90px;
-									cursor: pointer;
-									z-index: 20;
-									/* descomente a linha abaixo para depurar a posição: */
-									/* background: rgba(255,0,0,0.3); */
-									}
 								</style>
 							</head>
 	<body>
@@ -134,8 +120,6 @@
 		<div id="wrapper">
 			<div id="unity-container">
 				<canvas id="unity-canvas" width="1920" height="1080" tabindex="0"></canvas>
-				<!-- Overlay invisível sobre o botão INICIAR JOGO — aciona fullscreen e some -->
-				<div id="fs-overlay"></div>
 				<div id="unity-loading-bar">
 					<div id="unity-logo"></div>
 					<div id="unity-progress-bar-empty">
@@ -223,12 +207,12 @@
 			document.getElementById("fs-label").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
-			// Overlay invisível sobre INICIAR JOGO: aciona fullscreen e some
-			var overlay = document.getElementById("fs-overlay");
-			overlay.onclick = function() {
+			// Escuta o primeiro clique no canvas na fase de captura (não interfere no Unity)
+			// e aciona fullscreen junto — o Unity recebe o evento normalmente
+			canvas.addEventListener('click', function fsOnce() {
 			unityInstance.SetFullscreen(1);
-			overlay.style.display = "none"; // some após o primeiro clique
-			};
+			canvas.removeEventListener('click', fsOnce, true);
+			}, { capture: true, once: true });
 			setTimeout(function() { canvas.focus(); escalar(); }, 200);
 			}).catch((msg) => { alert(msg); });
 			};
