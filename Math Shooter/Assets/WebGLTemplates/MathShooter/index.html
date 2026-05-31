@@ -44,18 +44,19 @@
 									#wrapper {
 									position: absolute;
 									top: 0; left: 0;
-									display: flex;
-									justify-content: center;
-									align-items: center;
 									width: 100vw;
 									height: 100vh;
+									overflow: hidden;
 									}
 
 									#unity-container {
-									position: relative;
+									position: absolute;
 									width: 1920px;
 									height: 1080px;
-									transform-origin: top left;
+									top: 50%;
+									left: 50%;
+									transform-origin: center center;
+									/* JS vai setar: transform: translate(-50%,-50%) scale(X) */
 									}
 
 									#unity-canvas {
@@ -157,14 +158,10 @@
 
 			function escalar() {
 			var container = document.getElementById('unity-container');
-			var wrapper   = document.getElementById('wrapper');
-			if (!container || !wrapper) return;
+			if (!container) return;
 			var ww = window.innerWidth, wh = window.innerHeight;
 			var scale = Math.min(ww / GAME_W, wh / GAME_H);
-			container.style.transform = 'scale(' + scale + ')';
-			container.style.transformOrigin = 'top left';
-			container.style.marginLeft = ((ww - GAME_W * scale) / 2) + 'px';
-			container.style.marginTop  = ((wh - GAME_H * scale) / 2) + 'px';
+			container.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
 			}
 
 			escalar();
