@@ -96,17 +96,31 @@
 									font-size: 10px; font-family: sans-serif;
 									}
 									#unity-fullscreen-button {
-									width: 36px; height: 36px; cursor: pointer;
+									width: 32px; height: 32px; cursor: pointer;
 									background: url('TemplateData/fullscreen-button.png') no-repeat center;
-									background-size: contain; opacity: 0.85;
-									transition: opacity 0.2s;
+									background-size: contain; opacity: 0.9;
+									transition: opacity 0.2s, transform 0.15s;
 									}
-									#unity-fullscreen-button:hover { opacity: 1; }
+									#unity-fullscreen-button:hover { opacity: 1; transform: scale(1.2); }
 									#unity-warning {
 									position: absolute; top: 0; left: 0;
 									width: 100%; z-index: 10; display: none;
 									}
 									#unity-logo-title-footer { display: none; }
+
+									/* Overlay invisível sobre o botão INICIAR JOGO do Unity */
+									#fs-overlay {
+									position: absolute;
+									/* Coordenadas no canvas 1920×1080: botão fica ~centralizado, y≈280, w≈370, h≈90 */
+									left:   775px;
+									top:    278px;
+									width:  370px;
+									height: 90px;
+									cursor: pointer;
+									z-index: 20;
+									/* descomente a linha abaixo para depurar a posição: */
+									/* background: rgba(255,0,0,0.3); */
+									}
 								</style>
 							</head>
 	<body>
@@ -120,6 +134,8 @@
 		<div id="wrapper">
 			<div id="unity-container">
 				<canvas id="unity-canvas" width="1920" height="1080" tabindex="0"></canvas>
+				<!-- Overlay invisível sobre o botão INICIAR JOGO — aciona fullscreen e some -->
+				<div id="fs-overlay"></div>
 				<div id="unity-loading-bar">
 					<div id="unity-logo"></div>
 					<div id="unity-progress-bar-empty">
@@ -130,6 +146,7 @@
 				<div id="unity-footer">
 					<div id="unity-logo-title-footer"></div>
 					<div id="unity-build-title">Math Shooter</div>
+					<span style="color:#f97316;font-size:11px;font-family:sans-serif;cursor:pointer;" id="fs-label">⛶ TELA CHEIA</span>
 					<div id="unity-fullscreen-button"></div>
 				</div>
 			</div>
@@ -203,8 +220,15 @@
 			document.querySelector("#unity-fullscreen-button").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
-			// Entra em tela cheia automaticamente assim que o Unity terminar de carregar
+			document.getElementById("fs-label").onclick = () => {
 			unityInstance.SetFullscreen(1);
+			};
+			// Overlay invisível sobre INICIAR JOGO: aciona fullscreen e some
+			var overlay = document.getElementById("fs-overlay");
+			overlay.onclick = function() {
+			unityInstance.SetFullscreen(1);
+			overlay.style.display = "none"; // some após o primeiro clique
+			};
 			setTimeout(function() { canvas.focus(); escalar(); }, 200);
 			}).catch((msg) => { alert(msg); });
 			};
