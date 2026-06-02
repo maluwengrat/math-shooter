@@ -51,7 +51,7 @@
               "RelativeDocumentMoniker": "Assets\\WebGLTemplates\\MathShooter\\index.html",
               "ToolTip": "C:\\Users\\maria\\Math Shooter\\Math Shooter\\Assets\\WebGLTemplates\\MathShooter\\index.html",
               "RelativeToolTip": "Assets\\WebGLTemplates\\MathShooter\\index.html",
-              "ViewState": "AgIAAOAAAAAAAAAAAAAmwO4AAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAEUBAAAAAAAAAAAmwFMBAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2026-05-31T04:59:53.85Z",
               "EditorCaption": ""
@@ -64,7 +64,7 @@
               "RelativeDocumentMoniker": "..\\docs\\index.html",
               "ToolTip": "C:\\Users\\maria\\Math Shooter\\docs\\index.html",
               "RelativeToolTip": "..\\docs\\index.html",
-              "ViewState": "AgIAAOAAAAAAAAAAAAAmwO4AAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAADcBAAAAAAAAAAAUwFIBAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2026-05-31T04:49:14.814Z",
               "EditorCaption": ""
@@ -116,8 +116,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Managers\\GameManager.cs",
               "ViewState": "AgIAANsCAAAAAAAAAAAYwPICAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-31T00:42:40.603Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-31T00:42:40.603Z"
             },
             {
               "$type": "Document",
