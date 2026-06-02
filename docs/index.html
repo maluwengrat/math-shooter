@@ -12,7 +12,6 @@
 									* { margin: 0; padding: 0; box-sizing: border-box; }
 									html, body {
 									width: 100vw; height: 100vh;
-									height: 100dvh; /* Garante tamanho correto em navegadores móveis */
 									background: #000;
 									overflow: hidden;
 									}
@@ -47,7 +46,6 @@
 									top: 0; left: 0;
 									width: 100vw;
 									height: 100vh;
-									height: 100dvh;
 									overflow: hidden;
 									}
 
@@ -58,6 +56,7 @@
 									top: 50%;
 									left: 50%;
 									transform-origin: center center;
+									/* JS vai setar: transform: translate(-50%,-50%) scale(X) */
 									}
 
 									#unity-canvas {
@@ -140,6 +139,8 @@
 		<script>
 			var GAME_W = 1920, GAME_H = 1080;
 
+
+
 			function escalar() {
 			var container = document.getElementById('unity-container');
 			if (!container) return;
@@ -150,12 +151,11 @@
 
 			escalar();
 			window.addEventListener('resize', escalar);
-			if (screen.orientation) {
-			screen.orientation.addEventListener('change', function() {
+			screen.orientation && screen.orientation.addEventListener('change', function() {
 			setTimeout(escalar, 300);
 			});
-			}
 
+			// Re-escala quando entrar/sair do fullscreen (barra some e janela muda de tamanho)
 			document.addEventListener('fullscreenchange',       function() { setTimeout(escalar, 100); });
 			document.addEventListener('webkitfullscreenchange', function() { setTimeout(escalar, 100); });
 
@@ -201,44 +201,27 @@
 			document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
 			}).then((unityInstance) => {
 			document.querySelector("#unity-loading-bar").style.display = "none";
-
-			// Função auxiliar para ativar o Fullscreen nativo da janela do navegador
-			function ativarFullscreenNativo(elemento) {
-			if (elemento.requestFullscreen) {
-			elemento.requestFullscreen();
-			} else if (elemento.webkitRequestFullscreen) { /* Safari / iOS */
-			elemento.webkitRequestFullscreen();
-			} else if (elemento.mozRequestFullScreen) {
-			elemento.mozRequestFullScreen();
-			} else if (elemento.msRequestFullscreen) {
-			elemento.msRequestFullscreen();
-			}
-			}
-
-			// Função unificada para gerenciar o clique do botão de tela cheia
-			function dispararTelaCheia() {
-			var wrapper = document.getElementById('wrapper');
-			ativarFullscreenNativo(wrapper);
-			try { unityInstance.SetFullscreen(1); } catch(e) {}
-			setTimeout(escalar, 150);
-			}
-
-			document.querySelector("#unity-fullscreen-button").onclick = dispararTelaCheia;
-			document.getElementById("fs-label").onclick = dispararTelaCheia;
-
-			// Primeiro toque/clique na tela limpa a barreira de toque e força a tela cheia
+			document.querySelector("#unity-fullscreen-button").onclick = () => {
+			unityInstance.SetFullscreen(1);
+			};
+			document.getElementById("fs-label").onclick = () => {
+			unityInstance.SetFullscreen(1);
+			};
+			// Primeiro toque/clique no canvas aciona fullscreen sem interferir no Unity
 			function fsOnce() {
-			dispararTelaCheia();
+			unityInstance.SetFullscreen(1);
 			canvas.removeEventListener('click',      fsOnce, true);
 			canvas.removeEventListener('touchstart', fsOnce, true);
 			}
 			canvas.addEventListener('click',      fsOnce, { capture: true, once: true });
 			canvas.addEventListener('touchstart', fsOnce, { capture: true, once: true });
 
-			// Detecta mobile via JS
+			// Detecta mobile via JS (muito mais confiável que Application.isMobilePlatform no WebGL)
+			// e avisa o MobileUI via SendMessage para forçar os controles
 			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
 			|| (navigator.maxTouchPoints > 1);
 			if (isMobileJS) {
+			// Tenta enviar assim que carrega, e também após 1s para garantir que o objeto já existe
 			setTimeout(function() {
 			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
 			}, 500);
