@@ -12,6 +12,7 @@
 									* { margin: 0; padding: 0; box-sizing: border-box; }
 									html, body {
 									width: 100vw; height: 100vh;
+									height: 100dvh; /* Garante tamanho correto em navegadores móveis */
 									background: #000;
 									overflow: hidden;
 									}
@@ -46,6 +47,7 @@
 									top: 0; left: 0;
 									width: 100vw;
 									height: 100vh;
+									height: 100dvh;
 									overflow: hidden;
 									}
 
@@ -106,40 +108,6 @@
 									width: 100%; z-index: 10; display: none;
 									}
 									#unity-logo-title-footer { display: none; }
-
-									/* Botão de iniciar para mobile */
-									#mobile-start-btn {
-									position: fixed;
-									bottom: 30px;
-									left: 50%;
-									transform: translateX(-50%);
-									background: linear-gradient(135deg, #f97316, #ff5722);
-									color: white;
-									border: none;
-									border-radius: 50px;
-									padding: 12px 30px;
-									font-size: 18px;
-									font-weight: bold;
-									font-family: sans-serif;
-									cursor: pointer;
-									z-index: 10000;
-									box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-									transition: transform 0.2s, opacity 0.3s;
-									animation: pulse 1.5s infinite;
-									}
-									#mobile-start-btn:active {
-									transform: translateX(-50%) scale(0.95);
-									}
-									@keyframes pulse {
-									0% { opacity: 0.9; transform: translateX(-50%) scale(1); }
-									50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
-									100% { opacity: 0.9; transform: translateX(-50%) scale(1); }
-									}
-									#mobile-start-btn.hide {
-									opacity: 0;
-									visibility: hidden;
-									transition: opacity 0.3s, visibility 0.3s;
-									}
 								</style>
 							</head>
 	<body>
@@ -149,9 +117,6 @@
 			<p>
 				GIRE O CELULAR<br>PARA JOGAR</p>
 		</div>
-
-		<!-- Botão de iniciar para mobile -->
-		<button id="mobile-start-btn">🎮 INICIAR JOGO</button>
 
 		<div id="wrapper">
 			<div id="unity-container">
@@ -191,12 +156,14 @@
 			});
 			}
 
-			document.addEventListener('fullscreenchange', function() { setTimeout(escalar, 100); });
+			document.addEventListener('fullscreenchange',       function() { setTimeout(escalar, 100); });
 			document.addEventListener('webkitfullscreenchange', function() { setTimeout(escalar, 100); });
 
 			var canvas = document.querySelector("#unity-canvas");
 			canvas.style.outline = "none";
 			window.addEventListener('load', function() { canvas.focus(); escalar(); });
+			document.addEventListener('click',   function() { canvas.focus(); });
+			document.addEventListener('keydown', function() { canvas.focus(); });
 
 			function unityShowBanner(msg, type) {
 			var wb = document.querySelector("#unity-warning");
@@ -227,92 +194,51 @@
 
 			document.querySelector("#unity-loading-bar").style.display = "block";
 
-			// Função para ativar tela cheia no mobile
-			function requestFullscreenMobile() {
-			var elem = document.documentElement;
-			if (elem.requestFullscreen) {
-			elem.requestFullscreen();
-			} else if (elem.webkitRequestFullscreen) {
-			elem.webkitRequestFullscreen();
-			} else if (elem.msRequestFullscreen) {
-			elem.msRequestFullscreen();
-			}
-			}
-
-			var isMobile = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent) ||
-			(navigator.maxTouchPoints > 1);
-
-			var mobileStartBtn = document.getElementById('mobile-start-btn');
-			var unityInstanceLoaded = false;
-			var gameStarted = false;
-
 			var script = document.createElement("script");
 			script.src = buildUrl + "/docs.loader.js";
 			script.onload = () => {
 			createUnityInstance(canvas, config, (progress) => {
 			document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
 			}).then((unityInstance) => {
-			unityInstanceLoaded = true;
 			document.querySelector("#unity-loading-bar").style.display = "none";
 
-			// Configurar botões de tela cheia normais
-			var fullscreenBtn = document.querySelector("#unity-fullscreen-button");
-			var fsLabel = document.getElementById("fs-label");
-
-			if (fullscreenBtn) {
-			fullscreenBtn.onclick = () => {
-			if (isMobile) {
-			requestFullscreenMobile();
-			} else {
-			unityInstance.SetFullscreen(1);
+			// Função auxiliar para ativar o Fullscreen nativo da janela do navegador
+			function ativarFullscreenNativo(elemento) {
+			if (elemento.requestFullscreen) {
+			elemento.requestFullscreen();
+			} else if (elemento.webkitRequestFullscreen) { /* Safari / iOS */
+			elemento.webkitRequestFullscreen();
+			} else if (elemento.mozRequestFullScreen) {
+			elemento.mozRequestFullScreen();
+			} else if (elemento.msRequestFullscreen) {
+			elemento.msRequestFullscreen();
 			}
-			};
-			}
-
-			if (fsLabel) {
-			fsLabel.onclick = () => {
-			if (isMobile) {
-			requestFullscreenMobile();
-			} else {
-			unityInstance.SetFullscreen(1);
-			}
-			};
 			}
 
-			// Para MOBILE: o botão de iniciar controla tudo
-			if (isMobile && mobileStartBtn) {
-			mobileStartBtn.addEventListener('click', function() {
-			if (!gameStarted) {
-			gameStarted = true;
-			mobileStartBtn.classList.add('hide');
-
-			// Primeiro ativa tela cheia
-			requestFullscreenMobile();
-
-			// Pequeno delay para garantir que a tela cheia foi ativada
-			setTimeout(function() {
-			// Envia mensagem para o Unity se precisar
-			try {
-			unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1');
-			} catch(e) {}
-
-			// Foca no canvas
-			canvas.focus();
-
-			// Mostra uma dica visual
-			setTimeout(function() {
-			if (mobileStartBtn) mobileStartBtn.style.display = 'none';
-			}, 500);
-			}, 100);
-			}
-			});
-			} else if (!isMobile) {
-			// Desktop: esconde o botão
-			if (mobileStartBtn) mobileStartBtn.style.display = 'none';
+			// Função unificada para gerenciar o clique do botão de tela cheia
+			function dispararTelaCheia() {
+			var wrapper = document.getElementById('wrapper');
+			ativarFullscreenNativo(wrapper);
+			try { unityInstance.SetFullscreen(1); } catch(e) {}
+			setTimeout(escalar, 150);
 			}
 
-			// Enviar detecção de mobile para o Unity
-			if (isMobile) {
+			document.querySelector("#unity-fullscreen-button").onclick = dispararTelaCheia;
+			document.getElementById("fs-label").onclick = dispararTelaCheia;
+
+			// Primeiro toque/clique na tela limpa a barreira de toque e força a tela cheia
+			function fsOnce() {
+			dispararTelaCheia();
+			canvas.removeEventListener('click',      fsOnce, true);
+			canvas.removeEventListener('touchstart', fsOnce, true);
+			}
+			canvas.addEventListener('click',      fsOnce, { capture: true, once: true });
+			canvas.addEventListener('touchstart', fsOnce, { capture: true, once: true });
+
+			// Detecta mobile via JS
+			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+			|| (navigator.maxTouchPoints > 1);
+			if (isMobileJS) {
 			setTimeout(function() {
 			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
 			}, 500);
@@ -322,19 +248,9 @@
 			}
 
 			setTimeout(function() { canvas.focus(); escalar(); }, 200);
-			}).catch((msg) => {
-			console.error(msg);
-			alert("Erro ao carregar o jogo: " + msg);
-			});
+			}).catch((msg) => { alert(msg); });
 			};
 			document.body.appendChild(script);
-
-			// Fallback: se não for mobile, esconde o botão após alguns segundos
-			if (!isMobile) {
-			setTimeout(function() {
-			if (mobileStartBtn) mobileStartBtn.style.display = 'none';
-			}, 1000);
-			}
 		</script>
 	</body>
 </html>
