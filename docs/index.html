@@ -16,39 +16,6 @@
 									overflow: hidden;
 									}
 
-									/* ── Tela de toque inicial (só no mobile) ── */
-									#tap-screen {
-									display: none; /* JS mostra só se mobile */
-									position: fixed;
-									inset: 0;
-									background: #08080f;
-									flex-direction: column;
-									align-items: center;
-									justify-content: center;
-									gap: 24px;
-									z-index: 99999;
-									cursor: pointer;
-									}
-									#tap-screen .logo {
-									font-family: sans-serif;
-									font-size: 2rem;
-									font-weight: bold;
-									letter-spacing: 4px;
-									color: #f97316;
-									text-transform: uppercase;
-									}
-									#tap-screen .pulse {
-									font-family: sans-serif;
-									font-size: 1rem;
-									color: rgba(255,255,255,0.6);
-									animation: piscar 1.4s ease-in-out infinite;
-									}
-									@keyframes piscar {
-									0%, 100% { opacity: 0.3; }
-									50%       { opacity: 1;   }
-									}
-
-									/* ── Aviso de rotação ── */
 									#rotate-msg {
 									display: none;
 									position: fixed;
@@ -139,15 +106,28 @@
 									width: 100%; z-index: 10; display: none;
 									}
 									#unity-logo-title-footer { display: none; }
+
+									/* Banner de fullscreen — só aparece no mobile, some após clicar */
+									#fs-banner {
+									display: none;
+									position: fixed;
+									top: 0; left: 0; width: 100%;
+									background: #f97316;
+									color: #fff;
+									font-family: sans-serif;
+									font-size: 1rem;
+									font-weight: bold;
+									text-align: center;
+									padding: 14px;
+									z-index: 99999;
+									cursor: pointer;
+									letter-spacing: 1px;
+									}
 								</style>
 							</head>
 	<body>
 
-		<!-- Tela de toque — aparece só no mobile, captura o gesto para fullscreen -->
-		<div id="tap-screen">
-			<div class="logo">Math Shooter</div>
-			<div class="pulse">Toque para jogar</div>
-		</div>
+		<div id="fs-banner">⛶ &nbsp;TOQUE AQUI PARA TELA CHEIA</div>
 
 		<div id="rotate-msg">
 			<div class="icon">📱</div>
@@ -168,7 +148,6 @@
 				<div id="unity-footer">
 					<div id="unity-logo-title-footer"></div>
 					<div id="unity-build-title">Math Shooter</div>
-					<span style="color:#f97316;font-size:11px;font-family:sans-serif;cursor:pointer;" id="fs-label">⛶ TELA CHEIA</span>
 					<div id="unity-fullscreen-button"></div>
 				</div>
 			</div>
@@ -176,36 +155,6 @@
 
 		<script>
 			var GAME_W = 1920, GAME_H = 1080;
-
-			// Detecta mobile pelo userAgent (confiável no navegador)
-			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
-			|| (navigator.maxTouchPoints > 1);
-
-			function entrarFullscreen() {
-			var el = document.documentElement;
-			var fn = el.requestFullscreen
-			|| el.webkitRequestFullscreen
-			|| el.mozRequestFullScreen
-			|| el.msRequestFullscreen;
-			if (fn) fn.call(el);
-			}
-
-			// Se mobile: mostra tela de toque e espera o gesto antes de tudo
-			var gestoCaptured = false;
-			if (isMobileJS) {
-			var tapScreen = document.getElementById('tap-screen');
-			tapScreen.style.display = 'flex';
-
-			function onTap() {
-			gestoCaptured = true;
-			entrarFullscreen();
-			tapScreen.style.display = 'none';
-			tapScreen.removeEventListener('click',      onTap);
-			tapScreen.removeEventListener('touchstart', onTap);
-			}
-			tapScreen.addEventListener('click',      onTap);
-			tapScreen.addEventListener('touchstart', onTap);
-			}
 
 			function escalar() {
 			var container = document.getElementById('unity-container');
@@ -266,15 +215,27 @@
 			}).then((unityInstance) => {
 			document.querySelector("#unity-loading-bar").style.display = "none";
 
+			// Botão de fullscreen no rodapé
 			document.querySelector("#unity-fullscreen-button").onclick = () => {
-			unityInstance.SetFullscreen(1);
-			};
-			document.getElementById("fs-label").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
 
 			// Avisa o Unity que é mobile para mostrar os botões de controle
+			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+			|| (navigator.maxTouchPoints > 1);
 			if (isMobileJS) {
+			// Mostra o banner de tela cheia
+			var fsBanner = document.getElementById('fs-banner');
+			fsBanner.style.display = 'block';
+			fsBanner.addEventListener('click', function() {
+			unityInstance.SetFullscreen(1);
+			fsBanner.style.display = 'none';
+			});
+			fsBanner.addEventListener('touchstart', function() {
+			unityInstance.SetFullscreen(1);
+			fsBanner.style.display = 'none';
+			});
+
 			setTimeout(function() {
 			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
 			}, 500);
