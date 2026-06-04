@@ -16,6 +16,39 @@
 									overflow: hidden;
 									}
 
+									/* ── Tela de toque inicial (só no mobile) ── */
+									#tap-screen {
+									display: none; /* JS mostra só se mobile */
+									position: fixed;
+									inset: 0;
+									background: #08080f;
+									flex-direction: column;
+									align-items: center;
+									justify-content: center;
+									gap: 24px;
+									z-index: 99999;
+									cursor: pointer;
+									}
+									#tap-screen .logo {
+									font-family: sans-serif;
+									font-size: 2rem;
+									font-weight: bold;
+									letter-spacing: 4px;
+									color: #f97316;
+									text-transform: uppercase;
+									}
+									#tap-screen .pulse {
+									font-family: sans-serif;
+									font-size: 1rem;
+									color: rgba(255,255,255,0.6);
+									animation: piscar 1.4s ease-in-out infinite;
+									}
+									@keyframes piscar {
+									0%, 100% { opacity: 0.3; }
+									50%       { opacity: 1;   }
+									}
+
+									/* ── Aviso de rotação ── */
 									#rotate-msg {
 									display: none;
 									position: fixed;
@@ -56,7 +89,6 @@
 									top: 50%;
 									left: 50%;
 									transform-origin: center center;
-									/* JS vai setar: transform: translate(-50%,-50%) scale(X) */
 									}
 
 									#unity-canvas {
@@ -111,6 +143,12 @@
 							</head>
 	<body>
 
+		<!-- Tela de toque — aparece só no mobile, captura o gesto para fullscreen -->
+		<div id="tap-screen">
+			<div class="logo">Math Shooter</div>
+			<div class="pulse">Toque para jogar</div>
+		</div>
+
 		<div id="rotate-msg">
 			<div class="icon">📱</div>
 			<p>
@@ -139,7 +177,35 @@
 		<script>
 			var GAME_W = 1920, GAME_H = 1080;
 
+			// Detecta mobile pelo userAgent (confiável no navegador)
+			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+			|| (navigator.maxTouchPoints > 1);
 
+			function entrarFullscreen() {
+			var el = document.documentElement;
+			var fn = el.requestFullscreen
+			|| el.webkitRequestFullscreen
+			|| el.mozRequestFullScreen
+			|| el.msRequestFullscreen;
+			if (fn) fn.call(el);
+			}
+
+			// Se mobile: mostra tela de toque e espera o gesto antes de tudo
+			var gestoCaptured = false;
+			if (isMobileJS) {
+			var tapScreen = document.getElementById('tap-screen');
+			tapScreen.style.display = 'flex';
+
+			function onTap() {
+			gestoCaptured = true;
+			entrarFullscreen();
+			tapScreen.style.display = 'none';
+			tapScreen.removeEventListener('click',      onTap);
+			tapScreen.removeEventListener('touchstart', onTap);
+			}
+			tapScreen.addEventListener('click',      onTap);
+			tapScreen.addEventListener('touchstart', onTap);
+			}
 
 			function escalar() {
 			var container = document.getElementById('unity-container');
@@ -154,8 +220,6 @@
 			screen.orientation && screen.orientation.addEventListener('change', function() {
 			setTimeout(escalar, 300);
 			});
-
-			// Re-escala quando entrar/sair do fullscreen (barra some e janela muda de tamanho)
 			document.addEventListener('fullscreenchange',       function() { setTimeout(escalar, 100); });
 			document.addEventListener('webkitfullscreenchange', function() { setTimeout(escalar, 100); });
 
@@ -201,27 +265,16 @@
 			document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
 			}).then((unityInstance) => {
 			document.querySelector("#unity-loading-bar").style.display = "none";
+
 			document.querySelector("#unity-fullscreen-button").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
 			document.getElementById("fs-label").onclick = () => {
 			unityInstance.SetFullscreen(1);
 			};
-			// Primeiro toque/clique no canvas aciona fullscreen sem interferir no Unity
-			function fsOnce() {
-			unityInstance.SetFullscreen(1);
-			canvas.removeEventListener('click',      fsOnce, true);
-			canvas.removeEventListener('touchstart', fsOnce, true);
-			}
-			canvas.addEventListener('click',      fsOnce, { capture: true, once: true });
-			canvas.addEventListener('touchstart', fsOnce, { capture: true, once: true });
 
-			// Detecta mobile via JS (muito mais confiável que Application.isMobilePlatform no WebGL)
-			// e avisa o MobileUI via SendMessage para forçar os controles
-			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
-			|| (navigator.maxTouchPoints > 1);
+			// Avisa o Unity que é mobile para mostrar os botões de controle
 			if (isMobileJS) {
-			// Tenta enviar assim que carrega, e também após 1s para garantir que o objeto já existe
 			setTimeout(function() {
 			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
 			}, 500);
