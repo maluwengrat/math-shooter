@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Runtime.InteropServices;
 
-
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -49,10 +48,10 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI finalScoreText;
     public Button btnJogarNovamente;
 
-
     // ── Estado interno ────────────────────────────────────────────────
     private List<string> historicoContas = new();
     private List<bool> historicoAcertos = new();
+    private List<string> operacoesErradas = new();
     private HashSet<string> perguntasUsadas = new HashSet<string>();
 
     private int correctAnswer = 0;
@@ -67,6 +66,9 @@ public class GameManager : MonoBehaviour
 
     private const int totalEnemies = 5;
     private const int ondasPorFase = 5;
+
+    // ── Tempo total da fase ───────────────────────────────────────────
+    private float tempoInicioFase = 0f;
 
     // ── Tempo Lento ───────────────────────────────────────────────────
     private bool tempoLentoAtivo = false;
@@ -89,9 +91,7 @@ public class GameManager : MonoBehaviour
     public bool JogoRodando() => jogoIniciado && !IsPanelAtivo();
     public int GetFaseAtual() => faseAtual;
     public int GetCorrectAnswer() => correctAnswer;
-
     public void ResumarJogo() { Time.timeScale = 1f; }
-
 
     void Awake() { instance = this; }
 
@@ -170,15 +170,8 @@ public class GameManager : MonoBehaviour
             PauseManager.instance.btnPause.gameObject.SetActive(painel == null);
     }
 
-    void AbrirComoJogar()
-    {
-        MostrarSomente(comoJogarPanel);
-    }
-
-    void FecharComoJogar()
-    {
-        MostrarSomente(menuPrincipalPanel);
-    }
+    void AbrirComoJogar() { MostrarSomente(comoJogarPanel); }
+    void FecharComoJogar() { MostrarSomente(menuPrincipalPanel); }
 
     // ─────────────────────────────────────────────────────────────────
     // Controle de jogo
@@ -186,6 +179,10 @@ public class GameManager : MonoBehaviour
 
     public void IniciarJogo()
     {
+        // Fullscreen ao clicar em Iniciar (gesto válido do usuário)
+        if (GameResultSender.instance != null)
+            GameResultSender.instance.AtivarFullscreen();
+
         PlayerController player = FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
         if (player != null) player.gameObject.SetActive(true);
 
@@ -195,8 +192,11 @@ public class GameManager : MonoBehaviour
         score = 0; faseAtual = 1; ondasCompletas = 0; jogoIniciado = false;
         historicoContas.Clear();
         historicoAcertos.Clear();
+        operacoesErradas.Clear();
         perguntasUsadas.Clear();
         powerUpsSpawnadosNaFase = 0;
+        tempoInicioFase = Time.time;
+
         AtualizarUI();
         jogoIniciado = true;
         if (BackgroundManager.Instance != null) BackgroundManager.Instance.SetStage(faseAtual);
@@ -219,8 +219,10 @@ public class GameManager : MonoBehaviour
         isBossWave = false;
         historicoContas.Clear();
         historicoAcertos.Clear();
+        operacoesErradas.Clear();
         perguntasUsadas.Clear();
         powerUpsSpawnadosNaFase = 0;
+        tempoInicioFase = Time.time;
 
         MostrarSomente(null);
         hudPanel.SetActive(true);
@@ -256,7 +258,9 @@ public class GameManager : MonoBehaviour
         ondasCompletas = 0;
         isBossWave = false;
         perguntasUsadas.Clear();
+        operacoesErradas.Clear();
         powerUpsSpawnadosNaFase = 0;
+        tempoInicioFase = Time.time;
         Time.timeScale = 1f;
 
         MostrarSomente(null);
@@ -276,7 +280,9 @@ public class GameManager : MonoBehaviour
         ondasCompletas = 0;
         isBossWave = false;
         perguntasUsadas.Clear();
+        operacoesErradas.Clear();
         powerUpsSpawnadosNaFase = 0;
+        tempoInicioFase = Time.time;
         Time.timeScale = 1f;
         historicoContas.Clear();
         historicoAcertos.Clear();
@@ -290,6 +296,34 @@ public class GameManager : MonoBehaviour
         jogoIniciado = true;
         AtualizarUI();
         SpawnWave();
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Envio de resultado para a plataforma
+    // ─────────────────────────────────────────────────────────────────
+
+    void EnviarResultado(bool concluiuFase)
+    {
+        if (GameResultSender.instance == null) return;
+
+        int acertos = 0;
+        foreach (var a in historicoAcertos) if (a) acertos++;
+        int erros = historicoAcertos.Count - acertos;
+        int aproveitamento = historicoAcertos.Count > 0
+            ? Mathf.RoundToInt((float)acertos / historicoAcertos.Count * 100) : 0;
+        int tempoTotal = Mathf.RoundToInt(Time.time - tempoInicioFase);
+
+        // Monta JSON da lista de operações erradas
+        var erradasEscapadas = new List<string>();
+        foreach (var op in operacoesErradas)
+            erradasEscapadas.Add("\"" + op.Replace("\"", "\\\"") + "\"");
+        string operacoesJson = "[" + string.Join(",", erradasEscapadas) + "]";
+
+        GameResultSender.instance.Enviar(
+            faseAtual, score, acertos, erros,
+            aproveitamento, tempoTotal,
+            operacoesJson, concluiuFase
+        );
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -324,6 +358,7 @@ public class GameManager : MonoBehaviour
 
         powerUpsSpawnadosNaFase++;
     }
+
     // ─────────────────────────────────────────────────────────────────
     // Spawn
     // ─────────────────────────────────────────────────────────────────
@@ -399,12 +434,8 @@ public class GameManager : MonoBehaviour
             Vector3 pos = new Vector3(posX[i], 3f + (i * 2f), 0);
             GameObject go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
-            // ⭐ GARANTIR QUE O INIMIGO APAREÇA NA FRENTE DO FUNDO
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.sortingOrder = 15;
-            }
+            if (sr != null) sr.sortingOrder = 15;
 
             Enemy e = go.GetComponent<Enemy>();
             e.SetNumber(nums[i]);
@@ -570,6 +601,9 @@ public class GameManager : MonoBehaviour
             timerAtivo = false;
             timerText.gameObject.SetActive(false);
 
+            // Registra operação errada
+            operacoesErradas.Add(perguntaAtual + correctAnswer);
+
             PlayerController player = FindFirstObjectByType<PlayerController>();
             if (player != null && player.TemEscudo())
             {
@@ -626,6 +660,9 @@ public class GameManager : MonoBehaviour
 
     public void ExecutarGameOver()
     {
+        // Envia resultado (fase não concluída)
+        EnviarResultado(false);
+
         FeedbackManager.instance.Esconder();
         hudPanel.SetActive(false);
         MostrarSomente(null);
@@ -661,6 +698,9 @@ public class GameManager : MonoBehaviour
 
         faseAprovada = percentual == 100;
 
+        // Envia resultado (fase concluída)
+        EnviarResultado(faseAprovada);
+
         faseTituloText.text = faseAprovada
             ? $"FASE {faseAtual} COMPLETA!"
             : "Tente Novamente!";
@@ -686,6 +726,7 @@ public class GameManager : MonoBehaviour
         MostrarSomente(faseCompletaPanel);
         Invoke(nameof(PausarJogo), 0.6f);
     }
+
     void VitoriaFinal()
     {
         CancelInvoke();
@@ -708,6 +749,9 @@ public class GameManager : MonoBehaviour
             ? Mathf.RoundToInt((float)acertos / historicoAcertos.Count * 100) : 0;
 
         faseAprovada = true;
+
+        // Envia resultado final
+        EnviarResultado(true);
 
         faseTituloText.text = "PARABÉNS!";
         faseDescText.text = $"Você completou todas as fases!\n\n"
