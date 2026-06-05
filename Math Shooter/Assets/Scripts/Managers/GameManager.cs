@@ -179,9 +179,6 @@ public class GameManager : MonoBehaviour
 
     public void IniciarJogo()
     {
-        // Fullscreen ao clicar em Iniciar (gesto válido do usuário)
-        if (GameResultSender.instance != null)
-            GameResultSender.instance.AtivarFullscreen();
 
         PlayerController player = FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
         if (player != null) player.gameObject.SetActive(true);
