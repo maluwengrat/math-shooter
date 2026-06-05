@@ -1,428 +1,257 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
-  <meta name="screen-orientation" content="landscape">
-  <title>Math Shooter</title>
-  <link rel="shortcut icon" href="TemplateData/favicon.ico">
-  <link rel="stylesheet" href="TemplateData/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+				<meta name="mobile-web-app-capable" content="yes">
+					<meta name="apple-mobile-web-app-capable" content="yes">
+						<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+							<title>Math Shooter</title>
+							<link rel="shortcut icon" href="TemplateData/favicon.ico">
+								<style>
+									* { margin: 0; padding: 0; box-sizing: border-box; }
+									html, body {
+									width: 100vw; height: 100vh;
+									background: #000;
+									overflow: hidden;
+									}
 
-    html, body {
-      width: 100%; height: 100%;
-      background: #08080f;
-      font-family: 'Exo 2', sans-serif;
-      color: white;
-      overflow: hidden;
-    }
+									#rotate-msg {
+									display: none;
+									position: fixed;
+									top: 0; left: 0; width: 100%; height: 100%;
+									background: #08080f;
+									flex-direction: column;
+									align-items: center; justify-content: center;
+									gap: 20px; z-index: 9999;
+									}
+									#rotate-msg .icon { font-size: 4rem; animation: girar 2s ease-in-out infinite; }
+									@keyframes girar {
+									0%   { transform: rotate(0deg); }
+									50%  { transform: rotate(90deg); }
+									100% { transform: rotate(90deg); }
+									}
+									#rotate-msg p {
+									color: #f97316; font-family: sans-serif;
+									font-size: 1.1rem; text-align: center;
+									}
 
-    /* ── força landscape em celular ── */
-    @media screen and (orientation: portrait) {
-      #rotate-msg { display: flex !important; }
-      #unity-container { display: none !important; }
-    }
+									@media screen and (orientation: portrait) and (max-width: 1024px) {
+									#rotate-msg { display: flex !important; }
+									#wrapper    { display: none !important; }
+									}
 
-    #rotate-msg {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #08080f;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      z-index: 9999;
-    }
-    #rotate-msg .icon { font-size: 4rem; animation: spin 2s ease-in-out infinite; }
-    @keyframes spin {
-      0%   { transform: rotate(0deg); }
-      40%  { transform: rotate(90deg); }
-      100% { transform: rotate(90deg); }
-    }
-    #rotate-msg p {
-      color: #f97316;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1rem;
-      letter-spacing: .1em;
-      text-align: center;
-    }
+									#wrapper {
+									position: absolute;
+									top: 0; left: 0;
+									width: 100vw;
+									height: 100vh;
+									overflow: hidden;
+									}
 
-    /* ── container unity ── */
-    #unity-container {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-    }
+									#unity-container {
+									position: absolute;
+									width: 1920px;
+									height: 1080px;
+									top: 50%;
+									left: 50%;
+									transform-origin: center center;
+									}
 
-    #unity-canvas {
-      width: 100% !important;
-      height: 100% !important;
-      outline: none;
-    }
+									#unity-canvas {
+									width: 1920px !important;
+									height: 1080px !important;
+									outline: none;
+									display: block;
+									}
 
-    /* ── loading bar unity ── */
-    #unity-loading-bar {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      z-index: 50;
-    }
-    #unity-logo { margin-bottom: 16px; }
-    #unity-progress-bar-empty {
-      width: 300px; height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      border: 1px solid rgba(249,115,22,0.3);
-      overflow: hidden;
-    }
-    #unity-progress-bar-full {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #b04a00, #f97316, #ffb040);
-      border-radius: 3px;
-      transition: width .25s ease;
-      box-shadow: 0 0 10px rgba(249,115,22,0.6);
-    }
+									#unity-loading-bar {
+									position: absolute;
+									top: 50%; left: 50%;
+									transform: translate(-50%, -50%);
+									text-align: center;
+									}
+									#unity-logo {
+									width: 154px; height: 130px;
+									background: url('TemplateData/unity-logo-dark.png') no-repeat center;
+									background-size: contain;
+									margin: 0 auto 10px;
+									}
+									#unity-progress-bar-empty {
+									width: 280px; height: 8px;
+									background: #333; border-radius: 4px; overflow: hidden;
+									}
+									#unity-progress-bar-full {
+									width: 0%; height: 100%;
+									background: #f97316; border-radius: 4px;
+									}
+									#unity-footer {
+									position: absolute; bottom: 0; right: 0;
+									padding: 5px 8px;
+									display: flex; align-items: center; gap: 6px;
+									}
+									#unity-build-title {
+									color: rgba(255,255,255,0.35);
+									font-size: 10px; font-family: sans-serif;
+									}
+									#unity-fullscreen-button {
+									width: 32px; height: 32px; cursor: pointer;
+									background: url('TemplateData/fullscreen-button.png') no-repeat center;
+									background-size: contain; opacity: 0.9;
+									transition: opacity 0.2s, transform 0.15s;
+									}
+									#unity-fullscreen-button:hover { opacity: 1; transform: scale(1.2); }
+									#unity-warning {
+									position: absolute; top: 0; left: 0;
+									width: 100%; z-index: 10; display: none;
+									}
+									#unity-logo-title-footer { display: none; }
 
-    /* ── warning ── */
-    #unity-warning {
-      position: fixed;
-      top: 0; left: 0; width: 100%;
-      z-index: 200;
-      display: none;
-    }
+									/* Banner de fullscreen — só aparece no mobile, some após clicar */
+									#fs-banner {
+									display: none;
+									position: fixed;
+									top: 0; left: 0; width: 100%;
+									background: #f97316;
+									color: #fff;
+									font-family: sans-serif;
+									font-size: 1rem;
+									font-weight: bold;
+									text-align: center;
+									padding: 14px;
+									z-index: 99999;
+									cursor: pointer;
+									letter-spacing: 1px;
+									}
+								</style>
+							</head>
+	<body>
 
-    /* ── footer ── */
-    #unity-footer {
-      position: fixed;
-      bottom: 0; right: 0;
-      z-index: 50;
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #unity-build-title {
-      color: rgba(249,115,22,0.4);
-      font-size: .65rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-    }
-    #unity-fullscreen-button {
-      width: 28px; height: 28px;
-      cursor: pointer;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(249,115,22,0.2);
-      border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-    }
-    #unity-fullscreen-button:hover { background: rgba(249,115,22,0.15); }
-    #unity-fullscreen-button img { width: 14px; opacity: .6; }
+		<div id="fs-banner">⛶ &nbsp;TOQUE AQUI PARA TELA CHEIA</div>
 
-    /* ── botão pause ── */
-    #btn-pause {
-      position: fixed;
-      top: 12px; right: 12px;
-      z-index: 100;
-      width: 44px; height: 44px;
-      background: rgba(249,115,22,0.15);
-      border: 1px solid rgba(249,115,22,0.4);
-      border-radius: 8px;
-      color: #f97316;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: background .2s;
-    }
-    #btn-pause:hover { background: rgba(249,115,22,0.3); }
+		<div id="rotate-msg">
+			<div class="icon">📱</div>
+			<p>
+				GIRE O CELULAR<br>PARA JOGAR</p>
+		</div>
 
-    /* ── painéis overlay ── */
-    .painel {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(8,8,15,0.92);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      z-index: 80;
-      backdrop-filter: blur(4px);
-    }
-    .painel.ativo { display: flex; }
+		<div id="wrapper">
+			<div id="unity-container">
+				<canvas id="unity-canvas" width="1920" height="1080" tabindex="0"></canvas>
+				<div id="unity-loading-bar">
+					<div id="unity-logo"></div>
+					<div id="unity-progress-bar-empty">
+						<div id="unity-progress-bar-full"></div>
+					</div>
+				</div>
+				<div id="unity-warning"></div>
+				<div id="unity-footer">
+					<div id="unity-logo-title-footer"></div>
+					<div id="unity-build-title">Math Shooter</div>
+					<div id="unity-fullscreen-button"></div>
+				</div>
+			</div>
+		</div>
 
-    .painel h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.6rem, 5vw, 2.8rem);
-      font-weight: 900;
-      color: #f97316;
-      text-shadow: 0 0 20px rgba(249,115,22,0.5);
-      letter-spacing: .05em;
-    }
-    .painel p {
-      font-size: clamp(.85rem, 2vw, 1rem);
-      color: #94a3b8;
-      text-align: center;
-      max-width: 420px;
-      line-height: 1.6;
-    }
-    .painel pre {
-      font-family: 'Exo 2', sans-serif;
-      font-size: clamp(.75rem, 1.8vw, .9rem);
-      color: #94a3b8;
-      text-align: center;
-      white-space: pre-wrap;
-      max-width: 480px;
-      line-height: 1.7;
-    }
+		<script>
+			var GAME_W = 1920, GAME_H = 1080;
 
-    .btn {
-      background: #f97316;
-      color: white;
-      border: none;
-      padding: 12px 40px;
-      border-radius: 8px;
-      font-size: clamp(.85rem, 2vw, 1rem);
-      font-family: 'Exo 2', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      transition: background .2s, transform .1s;
-    }
-    .btn:hover  { background: #ea6c0a; }
-    .btn:active { transform: scale(.97); }
+			function escalar() {
+			var container = document.getElementById('unity-container');
+			if (!container) return;
+			var ww = window.innerWidth, wh = window.innerHeight;
+			var scale = Math.min(ww / GAME_W, wh / GAME_H);
+			container.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+			}
 
-    .btn-sec {
-      background: transparent;
-      border: 1px solid #f97316;
-      color: #f97316;
-      padding: 10px 36px;
-      border-radius: 8px;
-      font-size: clamp(.8rem, 1.8vw, .95rem);
-      font-family: 'Exo 2', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      transition: background .2s;
-    }
-    .btn-sec:hover { background: rgba(249,115,22,0.1); }
+			escalar();
+			window.addEventListener('resize', escalar);
+			screen.orientation && screen.orientation.addEventListener('change', function() {
+			setTimeout(escalar, 300);
+			});
+			document.addEventListener('fullscreenchange',       function() { setTimeout(escalar, 100); });
+			document.addEventListener('webkitfullscreenchange', function() { setTimeout(escalar, 100); });
 
-    #score-final {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1rem, 3vw, 1.3rem);
-      color: white;
-    }
-  </style>
-</head>
-<body>
+			var canvas = document.querySelector("#unity-canvas");
+			canvas.style.outline = "none";
+			window.addEventListener('load', function() { canvas.focus(); escalar(); });
+			document.addEventListener('click',   function() { canvas.focus(); });
+			document.addEventListener('keydown', function() { canvas.focus(); });
 
-  <!-- aviso para girar o celular -->
-  <div id="rotate-msg">
-    <div class="icon">📱</div>
-    <p>GIRE O CELULAR<br>PARA JOGAR</p>
-  </div>
+			function unityShowBanner(msg, type) {
+			// Suprime erros de permissão do Unity (Permissions check failed)
+			// que ocorrem no mobile durante inicialização e não afetam o jogo
+			if (msg && msg.indexOf('ermission') !== -1) return;
 
-  <!-- botão pause (aparece só durante o jogo) -->
-  <button id="btn-pause" onclick="togglePause()">⏸</button>
+			var wb = document.querySelector("#unity-warning");
+			function upd() { wb.style.display = wb.children.length ? 'block' : 'none'; }
+			var d = document.createElement('div');
+			d.innerHTML = msg;
+			wb.appendChild(d);
+			if (type == 'error') d.style = 'background:red;padding:10px;color:#fff;';
+			else {
+			if (type == 'warning') d.style = 'background:orange;padding:10px;';
+			setTimeout(function() { wb.removeChild(d); upd(); }, 5000);
+			}
+			upd();
+			}
 
-  <!-- unity -->
-  <div id="unity-container" class="unity-desktop">
-    <canvas id="unity-canvas" tabindex="0"></canvas>
-    <div id="unity-loading-bar">
-      <div id="unity-logo"></div>
-      <div id="unity-progress-bar-empty">
-        <div id="unity-progress-bar-full"></div>
-      </div>
-    </div>
-    <div id="unity-warning"></div>
-    <div id="unity-footer">
-      <div id="unity-build-title">Math Shooter</div>
-      <div id="unity-fullscreen-button">
-        <img src="TemplateData/fullscreen-button.png" alt="FS">
-      </div>
-    </div>
-  </div>
+			var buildUrl = "Build";
+			var config = {
+			arguments: [],
+			dataUrl:            buildUrl + "/docs.data",
+			frameworkUrl:       buildUrl + "/docs.framework.js",
+			codeUrl:            buildUrl + "/docs.wasm",
+			streamingAssetsUrl: "StreamingAssets",
+			companyName:        "UTFPR",
+			productName:        "Math Shooter",
+			productVersion:     "1.0",
+			showBanner:         unityShowBanner,
+			};
 
-  <!-- painel pause -->
-  <div class="painel" id="painel-pause">
-    <h1>PAUSADO</h1>
-    <button class="btn" onclick="togglePause()">▶ Continuar</button>
-  </div>
+			document.querySelector("#unity-loading-bar").style.display = "block";
 
-  <!-- painel game over -->
-  <div class="painel" id="painel-gameover">
-    <h1>GAME OVER</h1>
-    <p id="score-final">Pontuação: 0</p>
-    <button class="btn" onclick="jogarNovamente()">Jogar Novamente</button>
-  </div>
+			var script = document.createElement("script");
+			script.src = buildUrl + "/docs.loader.js";
+			script.onload = () => {
+			createUnityInstance(canvas, config, (progress) => {
+			document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
+			}).then((unityInstance) => {
+			document.querySelector("#unity-loading-bar").style.display = "none";
 
-  <!-- painel fase completa -->
-  <div class="painel" id="painel-fase">
-    <h1 id="fase-titulo">Fase Completa!</h1>
-    <pre id="fase-desc"></pre>
-    <button class="btn" id="btn-continuar" onclick="continuar()">Continuar</button>
-  </div>
+			// Botão de fullscreen no rodapé
+			document.querySelector("#unity-fullscreen-button").onclick = () => {
+			unityInstance.SetFullscreen(1);
+			};
 
-  <script>
-    var unityInstance = null;
-    var pausado = false;
-    var jogoAtivo = false;
-    var canvas = document.querySelector("#unity-canvas");
+			// Avisa o Unity que é mobile para mostrar os botões de controle
+			var isMobileJS = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+			|| (navigator.maxTouchPoints > 1);
+			if (isMobileJS) {
+			// Mostra o banner de tela cheia
+			var fsBanner = document.getElementById('fs-banner');
+			fsBanner.style.display = 'block';
+			fsBanner.addEventListener('click', function() {
+			unityInstance.SetFullscreen(1);
+			fsBanner.style.display = 'none';
+			});
+			fsBanner.addEventListener('touchstart', function() {
+			unityInstance.SetFullscreen(1);
+			fsBanner.style.display = 'none';
+			});
 
-    // ── fix foco canvas ──
-    canvas.style.outline = "none";
-    window.addEventListener('load', function() { canvas.focus(); });
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.painel') && !e.target.closest('#btn-pause'))
-        canvas.focus();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && jogoAtivo) togglePause();
-      canvas.focus();
-    });
+			setTimeout(function() {
+			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
+			}, 500);
+			setTimeout(function() {
+			try { unityInstance.SendMessage('MobileUI', 'SetMobileFromJS', '1'); } catch(e) {}
+			}, 2000);
+			}
 
-    // ── bridge Unity → JS ──
-    window.unityBridge = {
-      mostrarGameOver: function(score) {
-        jogoAtivo = false;
-        esconderPause();
-        esconderTodos();
-        document.getElementById('score-final').innerText = 'Pontuação: ' + score;
-        document.getElementById('painel-gameover').classList.add('ativo');
-        document.getElementById('btn-pause').style.display = 'none';
-      },
-      mostrarFaseCompleta: function(fase, aprovado, desc) {
-        jogoAtivo = false;
-        esconderPause();
-        esconderTodos();
-        document.getElementById('fase-titulo').innerText = aprovado
-          ? 'FASE ' + fase + ' COMPLETA!' : 'TENTE NOVAMENTE!';
-        document.getElementById('fase-desc').innerText = desc || '';
-        document.getElementById('btn-continuar').innerText = aprovado ? 'Continuar' : 'Tentar Novamente';
-        document.getElementById('painel-fase').classList.add('ativo');
-        document.getElementById('btn-pause').style.display = 'none';
-      },
-      esconderPaineis: function() {
-        jogoAtivo = true;
-        esconderTodos();
-        document.getElementById('btn-pause').style.display = 'flex';
-        setTimeout(function() { canvas.focus(); }, 100);
-      }
-    };
-
-    function esconderTodos() {
-      document.querySelectorAll('.painel').forEach(function(p) {
-        p.classList.remove('ativo');
-      });
-    }
-
-    function esconderPause() {
-      pausado = false;
-      document.getElementById('painel-pause').classList.remove('ativo');
-    }
-
-    function togglePause() {
-      if (!jogoAtivo && !pausado) return;
-      pausado = !pausado;
-      if (pausado) {
-        document.getElementById('painel-pause').classList.add('ativo');
-        document.getElementById('btn-pause').innerHTML = '▶';
-        if (unityInstance) unityInstance.SendMessage('GameManager', 'PausarJogo');
-      } else {
-        document.getElementById('painel-pause').classList.remove('ativo');
-        document.getElementById('btn-pause').innerHTML = '⏸';
-        if (unityInstance) unityInstance.SendMessage('GameManager', 'ResumarJogo');
-        setTimeout(function() { canvas.focus(); }, 100);
-      }
-    }
-
-    function jogarNovamente() {
-      esconderTodos();
-      jogoAtivo = true;
-      document.getElementById('btn-pause').style.display = 'flex';
-      if (unityInstance) unityInstance.SendMessage('GameManager', 'ReiniciarDaFase');
-      setTimeout(function() { canvas.focus(); }, 100);
-    }
-
-    function continuar() {
-      esconderTodos();
-      jogoAtivo = true;
-      document.getElementById('btn-pause').style.display = 'flex';
-      if (unityInstance) unityInstance.SendMessage('GameManager', 'AcaoBtnContinuar');
-      setTimeout(function() { canvas.focus(); }, 100);
-    }
-
-    // ── Unity loader ──
-    function unityShowBanner(msg, type) {
-      var wb = document.querySelector("#unity-warning");
-      function upd() { wb.style.display = wb.children.length ? 'block' : 'none'; }
-      var d = document.createElement('div');
-      d.innerHTML = msg;
-      wb.appendChild(d);
-      if (type == 'error') d.style = 'background:red;padding:10px;color:#fff;';
-      else {
-        if (type == 'warning') d.style = 'background:#f97316;padding:10px;color:#fff;';
-        setTimeout(function() { wb.removeChild(d); upd(); }, 5000);
-      }
-      upd();
-    }
-
-    var buildUrl = "Build";
-    var config = {
-      arguments: [],
-      dataUrl:            buildUrl + "/{{{ DATA_FILENAME }}}",
-      frameworkUrl:       buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
-      codeUrl:            buildUrl + "/{{{ CODE_FILENAME }}}",
-#if MEMORY_FILENAME
-      memoryUrl:          buildUrl + "/{{{ MEMORY_FILENAME }}}",
-#endif
-#if SYMBOLS_FILENAME
-      symbolsUrl:         buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
-#endif
-      streamingAssetsUrl: "StreamingAssets",
-      companyName:        "{{{ COMPANY_NAME }}}",
-      productName:        "{{{ PRODUCT_NAME }}}",
-      productVersion:     "{{{ PRODUCT_VERSION }}}",
-      showBanner:         unityShowBanner,
-    };
-
-    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      document.querySelector("#unity-container").className = "unity-mobile";
-      canvas.className = "unity-mobile";
-    } else {
-      canvas.style.width  = "100%";
-      canvas.style.height = "100%";
-    }
-
-    document.querySelector("#unity-loading-bar").style.display = "block";
-
-    var script = document.createElement("script");
-    script.src = buildUrl + "/{{{ LOADER_FILENAME }}}";
-    script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
-      }).then((instance) => {
-        unityInstance = instance;
-        document.querySelector("#unity-loading-bar").style.display = "none";
-        document.querySelector("#unity-fullscreen-button").onclick = () => {
-          instance.SetFullscreen(1);
-        };
-        setTimeout(function() { canvas.focus(); }, 300);
-      }).catch((msg) => { alert(msg); });
-    };
-    document.body.appendChild(script);
-  </script>
-</body>
+			setTimeout(function() { canvas.focus(); escalar(); }, 200);
+			}).catch((msg) => { alert(msg); });
+			};
+			document.body.appendChild(script);
+		</script>
+	</body>
 </html>
