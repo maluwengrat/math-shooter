@@ -179,7 +179,6 @@ public class GameManager : MonoBehaviour
 
     public void IniciarJogo()
     {
-
         PlayerController player = FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
         if (player != null) player.gameObject.SetActive(true);
 

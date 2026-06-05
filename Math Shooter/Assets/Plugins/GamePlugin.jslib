@@ -1,15 +1,5 @@
 mergeInto(LibraryManager.library, {
 
-  // Fullscreen
-  EntrarFullscreen: function() {
-    var el = document.documentElement;
-    var fn = el.requestFullscreen
-           || el.webkitRequestFullscreen
-           || el.mozRequestFullScreen
-           || el.msRequestFullscreen;
-    if (fn) fn.call(el);
-  },
-
   // Envio de resultado da fase para a plataforma
   EnviarResultadoFase: function(jsonPtr) {
     var json = UTF8ToString(jsonPtr);

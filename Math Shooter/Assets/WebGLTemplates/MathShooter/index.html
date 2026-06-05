@@ -179,6 +179,10 @@
 			document.addEventListener('keydown', function() { canvas.focus(); });
 
 			function unityShowBanner(msg, type) {
+			// Suprime erros de permissão do Unity (Permissions check failed)
+			// que ocorrem no mobile durante inicialização e não afetam o jogo
+			if (msg && msg.indexOf('ermission') !== -1) return;
+
 			var wb = document.querySelector("#unity-warning");
 			function upd() { wb.style.display = wb.children.length ? 'block' : 'none'; }
 			var d = document.createElement('div');

@@ -10,24 +10,11 @@ public class GameResultSender : MonoBehaviour
     public static GameResultSender instance;
 
     [DllImport("__Internal")]
-    private static extern void EntrarFullscreen();
-
-    [DllImport("__Internal")]
     private static extern void EnviarResultadoFase(string json);
 
     void Awake()
     {
         instance = this;
-    }
-
-    /// <summary>
-    /// Chama o fullscreen via jslib (funciona no WebGL pois é acionado por gesto do usuário).
-    /// </summary>
-    public void AtivarFullscreen()
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        EntrarFullscreen();
-#endif
     }
 
     /// <summary>
