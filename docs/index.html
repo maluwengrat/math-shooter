@@ -25,9 +25,6 @@
         left: 0;
         width: 100%;
         height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
       #unity-canvas {
         position: absolute;
@@ -90,7 +87,6 @@
         showBanner: unityShowBanner,
       };
 
-      // Mesmo comportamento para desktop e mobile
       canvas.style.width = "100%";
       canvas.style.height = "100%";
 
@@ -106,6 +102,16 @@
           document.querySelector("#unity-fullscreen-button").onclick = () => {
             unityInstance.SetFullscreen(1);
           };
+
+          // ── Detecta se é celular/tablet e avisa o Unity ──
+          var isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                      || (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+
+          if (isMobile) {
+            // Avisa o script MobileUI dentro do Unity
+            unityInstance.SendMessage("MobileUI", "SetMobileFromJS", "1");
+          }
+
         }).catch((message) => {
           alert(message);
         });
